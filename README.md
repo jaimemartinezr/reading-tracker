@@ -16,6 +16,8 @@ Google Drive para tenerlos en todos tus dispositivos.
 
 ## Qué hace
 
+- **Elección de modo al entrar:** solo en este dispositivo o sincronizado con Google Drive, y se
+  puede cambiar en Ajustes.
 - **Biblioteca:** alta de libros con título, autor opcional, total de páginas y color.
 - **Registro diario:** anota cuántas páginas leíste de cada libro, con fecha (hoy o días pasados).
   Los registros del mismo día y libro se suman; puedes eliminar cualquier registro.
@@ -33,9 +35,22 @@ Google Drive para tenerlos en todos tus dispositivos.
   nada.
 - **Extras:** exportar/importar JSON, modo oscuro, instalable en móvil y escritorio.
 
+## Modos de uso
+
+La primera vez que abres Páginas eliges cómo quieres guardar los datos:
+
+- **Solo en este dispositivo:** funciona sin cuenta y sin internet; todo se guarda en el navegador
+  y puedes exportar copias en JSON.
+- **Sincronizar con Google Drive:** además de guardar en local, sincroniza tu progreso entre
+  dispositivos con una copia en tu Drive.
+
+Puedes cambiarlo cuando quieras en **Ajustes → Modo de uso**. Al volver a Google Drive se reanuda
+la sincronización y se suben los cambios pendientes; al pasar a local se pausa sin borrar nada. En
+modo local la app no hace ninguna petición a Google.
+
 ## Cómo usarla
 
-1. Abre la app y pulsa **Añadir libro** (título y número de páginas).
+1. Abre la app, elige el modo y pulsa **Añadir libro** (título y número de páginas).
 2. Cada día, en **Hoy**, elige el libro, escribe las páginas y pulsa **Registrar**.
 3. Consulta **Progreso**, elige el mes y el año, y revisa el avance diario y por libro.
 4. Para sincronizar entre dispositivos, configura Google Drive (siguiente apartado) en cada

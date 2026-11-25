@@ -8,6 +8,7 @@ import { TodayScreen } from './screens/TodayScreen';
 import { BooksScreen } from './screens/BooksScreen';
 import { ProgressScreen } from './screens/ProgressScreen';
 import { SettingsScreen } from './screens/SettingsScreen';
+import { WelcomeScreen } from './screens/WelcomeScreen';
 
 const NAV_ITEMS: Array<{ id: Screen; label: string; icon: IconName }> = [
   { id: 'today', label: 'Hoy', icon: 'today' },
@@ -32,6 +33,10 @@ export default function App() {
     window.scrollTo({ top: 0, behavior: 'auto' });
     document.title = `${TITLES[screen]} · Páginas`;
   }, [screen]);
+
+  if (settings.mode === undefined) {
+    return <WelcomeScreen />;
+  }
 
   const go = (next: Screen) => setScreen(next);
 
@@ -76,9 +81,11 @@ export default function App() {
         <div className="sidebar-foot">
           <SyncPill sync={sync} dirty={dirty} onClick={() => go('settings')} />
           <p className="sidebar-note">
-            {settings.connected
-              ? 'Tus datos se sincronizan con Google Drive.'
-              : 'Conecta Google Drive en Ajustes para usar la app en varios dispositivos.'}
+            {settings.mode === 'offline'
+              ? 'Modo sin conexión: tus datos se guardan solo en este dispositivo.'
+              : settings.connected
+                ? 'Tus datos se sincronizan con Google Drive.'
+                : 'Conecta Google Drive en Ajustes para usar la app en varios dispositivos.'}
           </p>
         </div>
       </aside>

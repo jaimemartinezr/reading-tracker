@@ -22,9 +22,16 @@ export function defaultSettings(): Settings {
 function sanitizeSettings(raw: unknown, fallback: Settings): Settings {
   if (typeof raw !== 'object' || raw === null) return fallback;
   const value = raw as Record<string, unknown>;
+  const clientId =
+    typeof value.clientId === 'string' ? value.clientId.trim() : fallback.clientId;
+  const connected = value.connected === true;
+  const explicitMode =
+    value.mode === 'offline' || value.mode === 'cloud' ? value.mode : undefined;
+
   return {
-    clientId: typeof value.clientId === 'string' ? value.clientId.trim() : fallback.clientId,
-    connected: value.connected === true,
+    clientId,
+    connected,
+    mode: explicitMode,
     folderId: typeof value.folderId === 'string' ? value.folderId : undefined,
     fileId: typeof value.fileId === 'string' ? value.fileId : undefined,
     lastSyncedAt:

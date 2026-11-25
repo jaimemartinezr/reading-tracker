@@ -13,6 +13,7 @@ export function SettingsScreen() {
     sync,
     dirty,
     setClientId,
+    setMode,
     connectDrive,
     syncNow,
     disconnectDrive,
@@ -54,7 +55,26 @@ export function SettingsScreen() {
     }
     setBusy(true);
     try {
-      await connectDrive();
+      const result = await connectDrive();
+      if (!result.ok) {
+        notify(result.error ?? 'No se pudo conectar con Google Drive.', 'error');
+      }
+    } finally {
+      setBusy(false);
+    }
+  };
+
+  const handleModeOffline = () => {
+    if (settings.mode === 'offline') return;
+    void setMode('offline');
+    notify('Modo sin conexión activado. Tus datos se guardan solo aquí.', 'info');
+  };
+
+  const handleModeCloud = async () => {
+    if (settings.mode === 'cloud' && settings.connected) return;
+    setBusy(true);
+    try {
+      await setMode('cloud');
     } finally {
       setBusy(false);
     }
@@ -110,6 +130,62 @@ export function SettingsScreen() {
 
       <section className="card settings-card">
         <div className="section-head">
+          <h2>Modo de uso</h2>
+          <span className={`mode-badge ${settings.mode === 'offline' ? 'offline' : 'cloud'}`}>
+            {settings.mode === 'offline' ? 'Sin conexión' : 'Google Drive'}
+          </span>
+        </div>
+        <p className="muted">
+          Elige si quieres usar Páginas solo en este dispositivo o sincronizarla con tu Google
+          Drive. Puedes cambiarlo en cualquier momento.
+        </p>
+        <div className="mode-options">
+          <button
+            type="button"
+            className={`mode-option${settings.mode === 'offline' ? ' is-active' : ''}`}
+            onClick={handleModeOffline}
+            aria-pressed={settings.mode === 'offline'}
+          >
+            <span className="mode-option-icon">
+              <Icon name="cloudOff" size={20} />
+            </span>
+            <span className="mode-option-text">
+              <strong>Solo local</strong>
+              <small>Sin cuenta. Los datos se quedan en este dispositivo.</small>
+            </span>
+            {settings.mode === 'offline' ? (
+              <Icon name="check" size={18} className="mode-check" />
+            ) : null}
+          </button>
+          <button
+            type="button"
+            className={`mode-option${settings.mode === 'cloud' ? ' is-active' : ''}`}
+            onClick={() => void handleModeCloud()}
+            disabled={busy}
+            aria-pressed={settings.mode === 'cloud'}
+          >
+            <span className="mode-option-icon">
+              <Icon name="cloud" size={20} />
+            </span>
+            <span className="mode-option-text">
+              <strong>Google Drive</strong>
+              <small>Sincroniza tu progreso entre dispositivos.</small>
+            </span>
+            {settings.mode === 'cloud' ? (
+              <Icon name="check" size={18} className="mode-check" />
+            ) : null}
+          </button>
+        </div>
+        {settings.mode === 'offline' && settings.connected ? (
+          <p className="hint">
+            La sincronización está pausada. El acceso a Drive se conserva para cuando quieras
+            volver a activarlo.
+          </p>
+        ) : null}
+      </section>
+
+      <section className="card settings-card">
+        <div className="section-head">
           <h2>Google Drive</h2>
           <SyncPill sync={sync} dirty={dirty} />
         </div>
@@ -162,13 +238,15 @@ export function SettingsScreen() {
             disabled={busy || !trimmedDraft}
           >
             <Icon name="cloud" size={18} />
-            {settings.connected ? 'Reconectar Drive' : 'Conectar Drive'}
+            {settings.mode === 'cloud' && settings.connected
+              ? 'Reconectar Drive'
+              : 'Conectar Drive'}
           </button>
           <button
             type="button"
             className="btn ghost"
             onClick={handleSync}
-            disabled={busy || !settings.connected}
+            disabled={busy || !settings.connected || settings.mode !== 'cloud'}
           >
             <Icon name="sync" size={17} className={busy || sync.status === 'syncing' ? 'spin' : undefined} />
             Sincronizar ahora

@@ -15,6 +15,7 @@ import type {
   PersistedState,
   Settings,
   SyncState,
+  UsageMode,
 } from '../types';
 import { SCHEMA_VERSION } from '../types';
 import { newId } from '../lib/id';
@@ -35,6 +36,11 @@ export interface Toast {
 
 type SyncMode = 'auto' | 'manual' | 'connect';
 
+export interface SyncResult {
+  ok: boolean;
+  error?: string;
+}
+
 export interface AppContextValue {
   data: AppData;
   settings: Settings;
@@ -48,7 +54,8 @@ export interface AppContextValue {
   logPages: (bookId: string, date: string, pages: number) => void;
   deleteEntry: (id: string) => void;
   setClientId: (clientId: string) => void;
-  connectDrive: () => Promise<void>;
+  setMode: (mode: UsageMode) => Promise<SyncResult>;
+  connectDrive: () => Promise<SyncResult>;
   disconnectDrive: () => void;
   syncNow: () => Promise<void>;
   importJson: (text: string) => { books: number; entries: number };
@@ -67,11 +74,12 @@ export function AppProvider({ children }: { children: ReactNode }) {
     () => initial?.settings ?? defaultSettings(),
   );
   const [dirty, setDirty] = useState<boolean>(initial?.dirty ?? false);
-  const [sync, setSync] = useState<SyncState>(() =>
-    initial?.settings.connected && initial.settings.clientId
+  const [sync, setSync] = useState<SyncState>(() => {
+    const current = initial?.settings;
+    return current && current.mode === 'cloud' && current.connected && current.clientId
       ? { status: 'idle' }
-      : { status: 'disconnected' },
-  );
+      : { status: 'disconnected' };
+  });
   const [toast, setToast] = useState<Toast | null>(null);
 
   const dataRef = useRef(data);
@@ -81,9 +89,10 @@ export function AppProvider({ children }: { children: ReactNode }) {
   const autoTimer = useRef<number | undefined>(undefined);
   const toastTimer = useRef<number | undefined>(undefined);
   const lastAutoSync = useRef(0);
-  const performSyncRef = useRef<((interactive: boolean, mode: SyncMode) => Promise<boolean>) | null>(
-    null,
-  );
+  const cloudIntent = useRef(false);
+  const performSyncRef = useRef<
+    ((interactive: boolean, mode: SyncMode) => Promise<SyncResult>) | null
+  >(null);
 
   const notify = useCallback((message: string, kind: ToastKind = 'success') => {
     if (toastTimer.current !== undefined) window.clearTimeout(toastTimer.current);
@@ -111,6 +120,7 @@ export function AppProvider({ children }: { children: ReactNode }) {
       setDirty(true);
       if (options.sync === false) return;
       if (!settingsRef.current.connected) return;
+      if (settingsRef.current.mode !== 'cloud') return;
       if (autoTimer.current !== undefined) window.clearTimeout(autoTimer.current);
       autoTimer.current = window.setTimeout(() => {
         void performSyncRef.current?.(false, 'auto');
@@ -124,26 +134,29 @@ export function AppProvider({ children }: { children: ReactNode }) {
   }, []);
 
   const performSync = useCallback(
-    async (interactive: boolean, mode: SyncMode): Promise<boolean> => {
+    async (interactive: boolean, mode: SyncMode): Promise<SyncResult> => {
+      if (mode === 'auto' && settingsRef.current.mode !== 'cloud') return { ok: true };
+
       const current = settingsRef.current;
       if (!current.clientId.trim()) {
-        setSync({
-          status: 'error',
-          message: 'Añade tu Client ID de Google en Ajustes para sincronizar.',
-        });
-        if (mode !== 'auto') notify('Añade tu Client ID de Google en Ajustes.', 'error');
-        return false;
+        const message = 'Añade tu Client ID de Google en Ajustes para sincronizar.';
+        setSync({ status: 'error', message });
+        if (mode === 'manual') notify(message, 'error');
+        return { ok: false, error: message };
       }
 
       if (typeof navigator !== 'undefined' && navigator.onLine === false) {
-        setSync({ status: 'offline', message: 'Estás sin conexión. Los cambios se guardan aquí.' });
-        if (mode !== 'auto') notify('Sin conexión: los cambios se guardan en este dispositivo.', 'info');
-        return false;
+        const message = 'Estás sin conexión. Los cambios se guardan aquí.';
+        setSync({ status: 'offline', message });
+        if (mode === 'manual') {
+          notify('Sin conexión: los cambios se guardan en este dispositivo.', 'info');
+        }
+        return { ok: false, error: message };
       }
 
       if (inFlight.current) {
         queued.current = true;
-        return false;
+        return { ok: false, error: 'Ya hay una sincronización en curso.' };
       }
 
       inFlight.current = true;
@@ -165,6 +178,11 @@ export function AppProvider({ children }: { children: ReactNode }) {
         const pending = !sameContent(outcome.data, reconciled);
         recomputeDirty(pending);
 
+        // Si el usuario pasó a modo sin conexión mientras sincronizaba, no pisamos ese estado.
+        if (settingsRef.current.mode === 'offline' && !cloudIntent.current) {
+          return { ok: true };
+        }
+
         const lastSyncedAt = new Date().toISOString();
         applySettings({
           connected: true,
@@ -179,26 +197,32 @@ export function AppProvider({ children }: { children: ReactNode }) {
           autoTimer.current = window.setTimeout(() => {
             void performSyncRef.current?.(false, 'auto');
           }, 1200);
-        } else if (mode !== 'auto') {
+        } else if (mode === 'manual') {
           notify(
             outcome.pulled && !outcome.pushed
               ? 'Datos actualizados desde Google Drive.'
               : 'Todo sincronizado con Google Drive.',
           );
         }
-        return true;
+        return { ok: true };
       } catch (error) {
         const err = error instanceof Error ? error : new Error('Error desconocido');
-        if (error instanceof DriveAuthError) {
-          setSync({ status: 'auth-required', message: err.message });
-        } else if (error instanceof DriveError && error.code === 'offline') {
-          setSync({ status: 'offline', message: err.message });
-        } else {
-          setSync({ status: 'error', message: err.message });
+        const abandoned =
+          settingsRef.current.mode === 'offline' && !cloudIntent.current;
+        if (!abandoned) {
+          if (error instanceof DriveAuthError) {
+            setSync({ status: 'auth-required', message: err.message });
+          } else if (error instanceof DriveError && error.code === 'offline') {
+            setSync({ status: 'offline', message: err.message });
+          } else {
+            setSync({ status: 'error', message: err.message });
+          }
+          if (mode === 'manual') notify(err.message, 'error');
+          else if (mode === 'auto' && !(error instanceof DriveAuthError)) {
+            console.warn('Sincronización:', err);
+          }
         }
-        if (mode !== 'auto') notify(err.message, 'error');
-        else if (!(error instanceof DriveAuthError)) console.warn('Sincronización:', err);
-        return false;
+        return { ok: false, error: err.message };
       } finally {
         inFlight.current = false;
         if (queued.current) {
@@ -222,7 +246,7 @@ export function AppProvider({ children }: { children: ReactNode }) {
   // Primer intento de sincronización silenciosa al abrir.
   useEffect(() => {
     const current = settingsRef.current;
-    if (!current.connected || !current.clientId) return;
+    if (!current.connected || !current.clientId || current.mode !== 'cloud') return;
     const timer = window.setTimeout(() => {
       void performSyncRef.current?.(false, 'auto');
     }, 900);
@@ -234,6 +258,7 @@ export function AppProvider({ children }: { children: ReactNode }) {
   useEffect(() => {
     const attempt = () => {
       if (!settingsRef.current.connected) return;
+      if (settingsRef.current.mode !== 'cloud') return;
       if (typeof navigator !== 'undefined' && navigator.onLine === false) return;
       const now = Date.now();
       if (now - lastAutoSync.current < 45_000) return;
@@ -380,25 +405,76 @@ export function AppProvider({ children }: { children: ReactNode }) {
     [applySettings],
   );
 
-  const connectDrive = useCallback(async () => {
+  const connectDrive = useCallback(async (): Promise<SyncResult> => {
     if (!settingsRef.current.clientId.trim()) {
-      notify('Primero pega tu Client ID de Google y guárdalo.', 'error');
-      return;
+      return { ok: false, error: 'Primero pega tu Client ID de Google y guárdalo.' };
     }
-    const ok = await performSync(true, 'connect');
-    if (ok) notify('Google Drive conectado. Tus datos se sincronizarán solos.');
-  }, [notify, performSync]);
+
+    cloudIntent.current = true;
+    const result = await performSync(true, 'connect');
+    if (result.ok && cloudIntent.current) {
+      applySettings({ mode: 'cloud' });
+      notify('Google Drive conectado. Tus datos se sincronizarán solos.');
+    } else if (result.ok) {
+      setSync({ status: 'disconnected' });
+    }
+    return result;
+  }, [applySettings, notify, performSync]);
+
+  const setMode = useCallback(
+    async (mode: UsageMode): Promise<SyncResult> => {
+      if (mode === 'offline') {
+        cloudIntent.current = false;
+        applySettings({ mode: 'offline' });
+        setSync({ status: 'disconnected' });
+        if (autoTimer.current !== undefined) {
+          window.clearTimeout(autoTimer.current);
+          autoTimer.current = undefined;
+        }
+        queued.current = false;
+        return { ok: true };
+      }
+
+      if (!settingsRef.current.clientId.trim()) {
+        const error = 'Añade tu Client ID de Google en Ajustes para activar la sincronización.';
+        setSync({ status: 'error', message: error });
+        notify(error, 'error');
+        return { ok: false, error };
+      }
+
+      cloudIntent.current = true;
+      const result = await performSync(true, 'connect');
+      if (result.ok && cloudIntent.current) {
+        applySettings({ mode: 'cloud' });
+        notify('Sincronización con Google Drive activada.');
+      } else if (result.ok) {
+        setSync({ status: 'disconnected' });
+      } else {
+        notify(result.error ?? 'No se pudo activar la sincronización.', 'error');
+      }
+      return result;
+    },
+    [applySettings, notify, performSync],
+  );
 
   const disconnectDrive = useCallback(() => {
     revokeAccessToken();
-    applySettings({ connected: false });
+    cloudIntent.current = false;
+    applySettings({ connected: false, mode: 'offline' });
     setSync({ status: 'disconnected' });
-    notify('Drive desconectado. Los datos siguen guardados en este dispositivo.', 'info');
+    notify(
+      'Drive desconectado. La app pasa a modo sin conexión; tus datos siguen aquí.',
+      'info',
+    );
   }, [applySettings, notify]);
 
   const syncNow = useCallback(async () => {
+    if (settingsRef.current.mode !== 'cloud') {
+      notify('Activa el modo Google Drive para sincronizar.', 'info');
+      return;
+    }
     await performSync(true, 'manual');
-  }, [performSync]);
+  }, [notify, performSync]);
 
   const importJson = useCallback(
     (text: string) => {
@@ -456,6 +532,7 @@ export function AppProvider({ children }: { children: ReactNode }) {
     logPages,
     deleteEntry,
     setClientId,
+    setMode,
     connectDrive,
     disconnectDrive,
     syncNow,

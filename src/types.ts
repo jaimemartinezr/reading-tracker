@@ -30,9 +30,13 @@ export interface AppData {
   updatedAt: string;
 }
 
+export type UsageMode = 'offline' | 'cloud';
+
 export interface Settings {
   clientId: string;
   connected: boolean;
+  /** undefined = aún no ha elegido modo (se muestra la bienvenida). */
+  mode?: UsageMode;
   folderId?: string;
   fileId?: string;
   lastSyncedAt?: string;
