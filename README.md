@@ -8,6 +8,8 @@ Google Drive para tenerlos en todos tus dispositivos.
   <img src="docs/preview.png" width="760" alt="Pantalla de inicio de Páginas: páginas leídas hoy, registro rápido y libros en curso" />
 </p>
 
+**App en vivo:** <https://jaimemartinezr.github.io/reading-tracker/>
+
 ![Hecho con React + TypeScript + Vite](https://img.shields.io/badge/React-19-1c1b18?style=flat-square)
 ![PWA](https://img.shields.io/badge/PWA-instalable-b4532b?style=flat-square)
 ![Tests](https://img.shields.io/badge/tests-38-b4532b?style=flat-square)
@@ -108,6 +110,14 @@ compila con la ruta base del repositorio y publica en Pages.
 
 La build usa `VITE_BASE_PATH=/NOMBRE_DEL_REPO/`; si renombras el repositorio, actualiza esa
 variable en el workflow.
+
+> GitHub Pages no está disponible para repositorios privados en el plan gratuito. Por eso este
+> repositorio es público: no contiene secretos y tus datos de lectura siguen viviendo únicamente en
+> tu Google Drive. Si prefieres mantener el código privado, necesitarás un plan de pago o publicar
+> la carpeta `dist/` en otro hosting.
+
+El Client ID de la build se inyecta con la **variable de repositorio** `VITE_GOOGLE_CLIENT_ID`
+(*Settings → Secrets and variables → Actions → Variables*). Si haces un fork, define la tuya.
 
 ## Arquitectura y decisiones
 
