@@ -1,6 +1,7 @@
 import type { BookStat } from '../lib/stats';
 import { formatNumber, formatPercent } from '../lib/format';
 import { formatShortDate } from '../lib/date';
+import { positionLabel } from '../lib/position';
 import { Icon } from './Icon';
 
 interface ProgressRingProps {
@@ -88,9 +89,12 @@ export function BookCard({ stat, onEdit, onDelete }: BookCardProps) {
       </div>
       <p className="book-progress-meta">
         <span>
-          <strong>{formatNumber(stat.pagesRead)}</strong> de {formatNumber(book.totalPages)} páginas
+          <strong>{positionLabel(stat)}</strong>
+          {stat.pagesRead <= 0 || stat.remainingPages <= 0
+            ? ` · ${formatNumber(book.totalPages)} páginas`
+            : null}
         </span>
-        <span>{percentLabel}</span>
+        <span>{percentLabel} leído</span>
       </p>
 
       <dl className="book-facts">

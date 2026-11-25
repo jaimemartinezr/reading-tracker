@@ -4,6 +4,7 @@ import type { Screen } from '../navigation';
 import {
   activeBooks,
   activeEntries,
+  bookStat,
   buildDayStat,
   lastNDays,
   libraryTotals,
@@ -11,6 +12,7 @@ import {
 } from '../lib/stats';
 import { formatLongDate, formatWeekday, todayISO } from '../lib/date';
 import { formatNumber, formatPercent } from '../lib/format';
+import { positionHint, positionLabel } from '../lib/position';
 import { DateField } from '../components/DateField';
 import { Icon } from '../components/Icon';
 
@@ -58,6 +60,11 @@ export function TodayScreen({ onNavigate, onAddBook }: TodayScreenProps) {
     () => new Map(data.books.map((book) => [book.id, book])),
     [data.books],
   );
+
+  const selectedStat = useMemo(() => {
+    const book = data.books.find((item) => item.id === selectedBookId && !item.deletedAt);
+    return book ? bookStat(book, data.entries, today) : null;
+  }, [selectedBookId, data.books, data.entries, today]);
 
   const todayEntries = useMemo(() => {
     const activeIds = new Set(books.map((book) => book.id));
@@ -162,7 +169,9 @@ export function TodayScreen({ onNavigate, onAddBook }: TodayScreenProps) {
           <section className="card composer">
             <div className="section-head">
               <h2>Registrar lectura</h2>
-              <span className="muted">Se suma al total del día</span>
+              <span className="muted">
+                {selectedStat ? positionHint(selectedStat) : 'Se suma al total del día'}
+              </span>
             </div>
             <form className="composer-form" onSubmit={handleSubmit}>
               <label className="field grow">
@@ -298,11 +307,7 @@ export function TodayScreen({ onNavigate, onAddBook }: TodayScreenProps) {
             </div>
             <div className="book-mini-grid">
               {books.map((book) => {
-                const read = data.entries
-                  .filter((entry) => !entry.deletedAt && entry.bookId === book.id)
-                  .reduce((sum, entry) => sum + entry.pages, 0);
-                const pagesToday = todayStat.perBook[book.id] ?? 0;
-                const percent = Math.min(100, (read / book.totalPages) * 100);
+                const stat = bookStat(book, data.entries, today);
                 return (
                   <article
                     className="book-mini"
@@ -312,18 +317,20 @@ export function TodayScreen({ onNavigate, onAddBook }: TodayScreenProps) {
                     <div className="mini-head">
                       <span className="book-swatch" aria-hidden="true" />
                       <h3 title={book.title}>{book.title}</h3>
-                      <span className="mini-percent">{formatPercent(percent)}</span>
+                      <span className="mini-percent">{formatPercent(stat.percent)}</span>
                     </div>
                     <div className="progress">
                       <div
                         className="progress-fill"
-                        style={{ width: `${Math.max(percent, read > 0 ? 2 : 0)}%` }}
+                        style={{
+                          width: `${Math.max(stat.percent, stat.pagesRead > 0 ? 2 : 0)}%`,
+                        }}
                       />
                     </div>
                     <p className="mini-meta">
-                      {formatNumber(read)} de {formatNumber(book.totalPages)} págs ·{' '}
-                      {pagesToday > 0
-                        ? `+${formatNumber(pagesToday)} hoy`
+                      {positionLabel(stat)} ·{' '}
+                      {stat.pagesToday > 0
+                        ? `+${formatNumber(stat.pagesToday)} hoy`
                         : 'sin páginas hoy'}
                     </p>
                   </article>

@@ -21,6 +21,7 @@ Google Drive para tenerlos en todos tus dispositivos.
   Los registros del mismo día y libro se suman; puedes eliminar cualquier registro.
 - **Cálculos automáticos:**
   - páginas leídas hoy y en el mes que elijas (selector de mes y año);
+  - página actual en la que vas de cada libro («Página 139 de 640»);
   - porcentaje leído de cada libro (acumulado) y porcentaje del libro leído cada día;
   - porcentaje de tu biblioteca avanzado por día;
   - páginas restantes, ritmo medio y fecha estimada de fin;

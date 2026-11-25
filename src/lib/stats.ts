@@ -83,6 +83,8 @@ export interface BookStat {
   remainingPages: number;
   /** Porcentaje del libro leído, entre 0 y 100. */
   percent: number;
+  /** Página en la que se encuentra el lector (páginas acumuladas, sin superar el total). */
+  currentPage: number;
   /** Porcentaje del libro leído hoy. */
   percentToday: number;
   pagesToday: number;
@@ -109,6 +111,7 @@ export function bookStat(book: Book, entries: Entry[], today: string = todayISO(
   const daysReading = new Set(dates).size;
 
   const percent = book.totalPages > 0 ? Math.min(100, (pagesRead / book.totalPages) * 100) : 0;
+  const currentPage = Math.min(pagesRead, book.totalPages);
   const remainingPages = Math.max(0, book.totalPages - pagesRead);
 
   const spanDays = firstReadDate ? Math.max(1, daysBetween(firstReadDate, today) + 1) : 0;
@@ -123,6 +126,7 @@ export function bookStat(book: Book, entries: Entry[], today: string = todayISO(
     pagesRead,
     remainingPages,
     percent,
+    currentPage,
     percentToday:
       book.totalPages > 0 ? Math.min(100, (pagesToday / book.totalPages) * 100) : 0,
     pagesToday,

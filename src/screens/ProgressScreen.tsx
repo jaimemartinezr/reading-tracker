@@ -3,6 +3,7 @@ import { useApp } from '../state/store';
 import { activeBooks, bestDay, bookStat, monthDayStats } from '../lib/stats';
 import { formatShortDate, formatWeekday, todayISO } from '../lib/date';
 import { formatNumber, formatPages, formatPercent } from '../lib/format';
+import { positionLabel } from '../lib/position';
 import { PagesChart } from '../components/PagesChart';
 import { Icon } from '../components/Icon';
 
@@ -111,6 +112,7 @@ export function ProgressScreen() {
         pages,
         percentMonth: book.totalPages > 0 ? Math.min(100, (pages / book.totalPages) * 100) : 0,
         accumulated: allTime.percent,
+        stat: allTime,
       };
     })
     .sort((a, b) => b.pages - a.pages || b.accumulated - a.accumulated);
@@ -258,8 +260,9 @@ export function ProgressScreen() {
                     />
                   </div>
                   <p className="per-book-meta">
-                    {formatNumber(row.pages)} de {formatNumber(row.book.totalPages)} páginas este
-                    mes · {formatPercent(row.accumulated)} acumulado
+                    {positionLabel(row.stat)} · {formatNumber(row.pages)} de{' '}
+                    {formatNumber(row.book.totalPages)} páginas este mes ·{' '}
+                    {formatPercent(row.accumulated)} acumulado
                   </p>
                 </li>
               ))}
