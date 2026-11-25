@@ -1,4 +1,10 @@
 import { DriveAuthError } from './errors';
+import {
+  clearStoredToken,
+  loadStoredToken,
+  saveStoredToken,
+  type StoredToken,
+} from './tokenStorage';
 
 export const DRIVE_SCOPE = 'https://www.googleapis.com/auth/drive.file';
 
@@ -34,11 +40,14 @@ declare global {
 }
 
 let scriptPromise: Promise<void> | null = null;
-let cachedToken: { clientId: string; token: string; expiresAt: number } | null = null;
+// Al recargar la app reutilizamos el token guardado (si sigue vigente), para no
+// volver a pedir autorización. Google no permite tokens de más de ~1 hora.
+let cachedToken: StoredToken | null = loadStoredToken();
 let pendingRequest: Promise<string> | null = null;
 
 export function clearTokenCache(): void {
   cachedToken = null;
+  clearStoredToken();
 }
 
 export function isGisAvailable(): boolean {
@@ -127,6 +136,7 @@ function requestAccessToken(clientId: string, interactive: boolean): Promise<str
           token: response.access_token,
           expiresAt: Date.now() + Math.max(60, expiresIn - 120) * 1000,
         };
+        saveStoredToken(cachedToken);
         finish(() => resolve(response.access_token as string));
       },
       error_callback: (error) => {
@@ -156,7 +166,11 @@ export async function getAccessToken(clientId: string, interactive = false): Pro
   const trimmed = clientId.trim();
   if (!trimmed) throw new DriveAuthError('Falta el Client ID de Google.');
 
-  if (cachedToken && cachedToken.clientId === trimmed && cachedToken.expiresAt > Date.now()) {
+  if (
+    cachedToken &&
+    cachedToken.clientId === trimmed &&
+    cachedToken.expiresAt > Date.now() + 60_000
+  ) {
     return cachedToken.token;
   }
   if (pendingRequest) return pendingRequest;

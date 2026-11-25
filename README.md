@@ -102,6 +102,20 @@ crear tu propio **Client ID** en Google Cloud. Es gratis y solo lo usas tú.
 >
 > y añade `jaimemartinezr.github.io` en *Dominios autorizados*.
 
+### ¿Por qué a veces vuelve a pedir autorización?
+
+La app guarda el **token de acceso** en el almacenamiento local del dispositivo (caduca en ~1 hora)
+para no pedir permiso en cada recarga. Pasado ese tiempo Google exige un token nuevo: la app
+intenta renovarlo en silencio al abrir o al volver a la pestaña y, si el navegador bloquea la
+ventana o la sesión de Google ha caducado, basta con pulsar «Sincronizar ahora» una vez.
+
+Google **no emite tokens de refresco de larga duración** a aplicaciones que viven solo en el
+navegador sin un servidor que guarde el secreto del cliente. Si quieres eliminar por completo los
+avisos, hay dos caminos:
+
+- añadir un pequeño backend/serverless que guarde el refresh token, o
+- usar un Web App de Google Apps Script como puente de sincronización (sin OAuth para el usuario).
+
 ## Desarrollo local
 
 Requisitos: Node.js 20.19+ y npm.

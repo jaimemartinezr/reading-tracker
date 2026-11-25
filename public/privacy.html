@@ -176,9 +176,14 @@
         tocar el resto de tu Drive.
       </p>
       <p>
-        El token de acceso de Google se mantiene en memoria mientras usas la app y no se guarda de
-        forma permanente. Puedes revocar el acceso en cualquier momento desde la propia app
-        (Ajustes → Desconectar) o desde
+        El token de acceso de Google se guarda en el almacenamiento local de este dispositivo con
+        su fecha de caducidad (aproximadamente una hora) para no pedirte autorización cada vez que
+        abres o recargas la app. Se elimina al caducar, al desconectar Drive desde Ajustes o al
+        cambiar el Client ID. No se guarda ningún token de refresco de larga duración.
+      </p>
+      <p>
+        Puedes revocar el acceso en cualquier momento desde la propia app (Ajustes → Desconectar) o
+        desde
         <a href="https://myaccount.google.com/permissions" target="_blank" rel="noreferrer"
           >la configuración de tu cuenta de Google</a
         >.

@@ -194,6 +194,10 @@ export function SettingsScreen() {
           sincronizan automáticamente en la carpeta <strong>«Proyecto Lectura»</strong> para que los
           tengas en todos tus dispositivos.
         </p>
+        <p className="hint">
+          La sesión de Google se recuerda en este dispositivo durante una hora para no pedirte
+          autorización al recargar. Al desconectar se elimina.
+        </p>
 
         {settings.lastSyncedAt ? (
           <p className="sync-last">

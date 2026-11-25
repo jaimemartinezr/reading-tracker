@@ -212,6 +212,8 @@ export function AppProvider({ children }: { children: ReactNode }) {
           settingsRef.current.mode === 'offline' && !cloudIntent.current;
         if (!abandoned) {
           if (error instanceof DriveAuthError) {
+            // El token guardado ya no sirve: lo borramos para pedir uno nuevo.
+            clearTokenCache();
             setSync({ status: 'auth-required', message: err.message });
           } else if (error instanceof DriveError && error.code === 'offline') {
             setSync({ status: 'offline', message: err.message });
