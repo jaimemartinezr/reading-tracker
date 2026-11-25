@@ -1,6 +1,6 @@
 import { useMemo, useState } from 'react';
 import { useApp } from '../state/store';
-import { activeBooks, bestDay, bookStat, monthDayStats } from '../lib/stats';
+import { activeBooks, bestDay, bookPagesUpTo, bookStat, monthDayStats } from '../lib/stats';
 import { formatShortDate, formatWeekday, todayISO } from '../lib/date';
 import { formatNumber, formatPages, formatPercent } from '../lib/format';
 import { positionLabel } from '../lib/position';
@@ -295,11 +295,16 @@ export function ProgressScreen() {
                         {Object.entries(day.perBook).map(([bookId, pages]) => {
                           const book = bookById.get(bookId);
                           if (!book) return null;
+                          const pageReached = Math.min(
+                            bookPagesUpTo(data.entries, bookId, day.date),
+                            book.totalPages,
+                          );
                           return (
                             <span className="chip" key={bookId}>
                               <span className="chip-dot" style={{ background: book.color }} />
                               {book.title} · {formatNumber(pages)} págs (
-                              {formatPercent((pages / book.totalPages) * 100)})
+                              {formatPercent((pages / book.totalPages) * 100)}) · pág.{' '}
+                              {formatNumber(pageReached)} de {formatNumber(book.totalPages)}
                             </span>
                           );
                         })}

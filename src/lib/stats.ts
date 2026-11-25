@@ -24,6 +24,15 @@ export function pagesOnDate(entries: Entry[], date: string): number {
     .reduce((sum, entry) => sum + entry.pages, 0);
 }
 
+/** Páginas acumuladas de un libro hasta una fecha inclusive (sin contar borrados). */
+export function bookPagesUpTo(entries: Entry[], bookId: string, date: string): number {
+  return entries
+    .filter(
+      (entry) => isVisibleEntry(entry) && entry.bookId === bookId && entry.date <= date,
+    )
+    .reduce((sum, entry) => sum + entry.pages, 0);
+}
+
 export function bookPagesRead(entries: Entry[], bookId: string): number {
   return entries
     .filter((entry) => isVisibleEntry(entry) && entry.bookId === bookId)

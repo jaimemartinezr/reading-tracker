@@ -2,6 +2,7 @@ import { describe, expect, it } from 'vitest';
 import type { Book, Entry } from '../src/types';
 import {
   bestDay,
+  bookPagesUpTo,
   bookStat,
   buildDayStat,
   lastNDays,
@@ -86,6 +87,28 @@ describe('lastNDays', () => {
       '2026-01-10',
     ]);
     expect(days[2].pages).toBe(12);
+  });
+});
+
+describe('bookPagesUpTo', () => {
+  const entries = [
+    makeEntry({ id: 'a', date: '2026-01-01', pages: 10 }),
+    makeEntry({ id: 'b', date: '2026-01-02', pages: 15 }),
+    makeEntry({ id: 'c', date: '2026-01-03', pages: 5, deletedAt: '2026-01-04T00:00:00.000Z' }),
+    makeEntry({ id: 'd', date: '2026-01-05', pages: 20 }),
+  ];
+
+  it('suma las páginas hasta la fecha indicada, inclusive', () => {
+    expect(bookPagesUpTo(entries, 'book-1', '2026-01-02')).toBe(25);
+    expect(bookPagesUpTo(entries, 'book-1', '2026-01-05')).toBe(45);
+  });
+
+  it('excluye registros borrados y fechas posteriores', () => {
+    expect(bookPagesUpTo(entries, 'book-1', '2026-01-04')).toBe(25);
+  });
+
+  it('devuelve 0 para un libro sin registros', () => {
+    expect(bookPagesUpTo(entries, 'book-2', '2026-01-05')).toBe(0);
   });
 });
 
