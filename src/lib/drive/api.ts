@@ -18,6 +18,7 @@ export interface DriveFileMeta {
   id: string;
   name?: string;
   modifiedTime?: string;
+  /** ETag HTTP (no es un campo seleccionable de la API v3: llega en la cabecera). */
   etag?: string;
   trashed?: boolean;
   parents?: string[];
@@ -76,6 +77,12 @@ async function driveFetch(url: string, token: string, init: RequestInit = {}): P
   throw new GoogleApiError(detail || `Error de Google Drive (${response.status}).`, response.status);
 }
 
+/** Drive devuelve el ETag en la cabecera HTTP, no en el cuerpo JSON. */
+function readEtag(response: Response, body: DriveFileMeta): DriveFileMeta {
+  const header = response.headers.get('ETag') ?? response.headers.get('etag');
+  return { ...body, etag: header ?? body.etag };
+}
+
 function filesUrl(params: Record<string, string>): string {
   const search = new URLSearchParams({ supportsAllDrives: 'true', ...params });
   return `${API_BASE}/files?${search.toString()}`;
@@ -83,10 +90,10 @@ function filesUrl(params: Record<string, string>): string {
 
 export async function getFileMeta(token: string, fileId: string): Promise<DriveFileMeta> {
   const response = await driveFetch(
-    `${API_BASE}/files/${encodeURIComponent(fileId)}?fields=id,name,modifiedTime,etag,trashed,parents&supportsAllDrives=true`,
+    `${API_BASE}/files/${encodeURIComponent(fileId)}?fields=id,name,modifiedTime,trashed,parents&supportsAllDrives=true`,
     token,
   );
-  return (await response.json()) as DriveFileMeta;
+  return readEtag(response, (await response.json()) as DriveFileMeta);
 }
 
 async function findFolder(token: string): Promise<DriveFileMeta | null> {
@@ -146,7 +153,7 @@ async function createFile(
   ].join('\r\n');
 
   const response = await driveFetch(
-    `${UPLOAD_BASE}/files?uploadType=multipart&fields=id,name,modifiedTime,etag&supportsAllDrives=true`,
+    `${UPLOAD_BASE}/files?uploadType=multipart&fields=id,name,modifiedTime&supportsAllDrives=true`,
     token,
     {
       method: 'POST',
@@ -154,7 +161,7 @@ async function createFile(
       body,
     },
   );
-  return (await response.json()) as DriveFileMeta;
+  return readEtag(response, (await response.json()) as DriveFileMeta);
 }
 
 /**
@@ -218,9 +225,9 @@ export async function uploadFileText(
   if (etag) headers['If-Match'] = etag;
 
   const response = await driveFetch(
-    `${UPLOAD_BASE}/files/${encodeURIComponent(fileId)}?uploadType=media&fields=id,modifiedTime,etag&supportsAllDrives=true`,
+    `${UPLOAD_BASE}/files/${encodeURIComponent(fileId)}?uploadType=media&fields=id,modifiedTime&supportsAllDrives=true`,
     token,
     { method: 'PATCH', headers, body: content },
   );
-  return (await response.json()) as DriveFileMeta;
+  return readEtag(response, (await response.json()) as DriveFileMeta);
 }

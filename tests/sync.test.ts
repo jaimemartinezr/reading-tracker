@@ -20,6 +20,7 @@ interface FakeFile {
 
 interface FakeDrive {
   files: Map<string, FakeFile>;
+  requests: string[];
   beforePatch: ((file: FakeFile) => void) | null;
   remoteData: () => AppData | null;
   setRemoteData: (data: AppData) => void;
@@ -61,10 +62,14 @@ function makeData(overrides: Partial<AppData> = {}): AppData {
   };
 }
 
-function json(body: unknown, status = 200): Response {
+function json(
+  body: unknown,
+  status = 200,
+  extraHeaders: Record<string, string> = {},
+): Response {
   return new Response(JSON.stringify(body), {
     status,
-    headers: { 'Content-Type': 'application/json' },
+    headers: { 'Content-Type': 'application/json', ...extraHeaders },
   });
 }
 
@@ -78,6 +83,7 @@ function installFakeDrive(): FakeDrive {
 
   const drive: FakeDrive = {
     files,
+    requests: [],
     beforePatch: null,
     remoteData: () => {
       const file = [...files.values()].find((item) => item.name === FILE_NAME);
@@ -97,6 +103,7 @@ function installFakeDrive(): FakeDrive {
 
   const fetchMock = vi.fn(async (input: RequestInfo | URL, init?: RequestInit) => {
     const url = new URL(String(input));
+    drive.requests.push(url.toString());
     const method = (init?.method ?? 'GET').toUpperCase();
     const path = url.pathname;
     const headers = new Headers(init?.headers ?? {});
@@ -143,12 +150,16 @@ function installFakeDrive(): FakeDrive {
         trashed: false,
       };
       files.set(file.id, file);
-      return json({
-        id: file.id,
-        name: file.name,
-        etag: file.etag,
-        modifiedTime: file.modifiedTime,
-      });
+      return json(
+        {
+          id: file.id,
+          name: file.name,
+          etag: file.etag,
+          modifiedTime: file.modifiedTime,
+        },
+        200,
+        { ETag: file.etag },
+      );
     }
 
     const fileIdMatch = path.match(/\/drive\/v3\/files\/([^/]+)$/);
@@ -169,25 +180,33 @@ function installFakeDrive(): FakeDrive {
         file.content = String(init?.body ?? '');
         file.etag = `"v${++version}"`;
         file.modifiedTime = now();
-        return json({
-          id: file.id,
-          etag: file.etag,
-          modifiedTime: file.modifiedTime,
-        });
+        return json(
+          {
+            id: file.id,
+            etag: file.etag,
+            modifiedTime: file.modifiedTime,
+          },
+          200,
+          { ETag: file.etag },
+        );
       }
 
       if (url.searchParams.get('alt') === 'media') {
         return new Response(file.content, { status: 200 });
       }
 
-      return json({
-        id: file.id,
-        name: file.name,
-        etag: file.etag,
-        modifiedTime: file.modifiedTime,
-        trashed: file.trashed,
-        parents: file.parents,
-      });
+      return json(
+        {
+          id: file.id,
+          name: file.name,
+          etag: file.etag,
+          modifiedTime: file.modifiedTime,
+          trashed: file.trashed,
+          parents: file.parents,
+        },
+        200,
+        { ETag: file.etag },
+      );
     }
 
     return json({ error: { message: `Sin ruta: ${method} ${path}` } }, 400);
@@ -329,6 +348,20 @@ describe('synchronizeOnce', () => {
       'e-other-device',
       'e1',
     ]);
+  });
+
+  it('nunca pide etag como campo de la API (viene en la cabecera HTTP)', async () => {
+    const drive = installFakeDrive();
+    await synchronizeOnce({
+      token: 'token',
+      local: makeData({ books: [makeBook()], entries: [makeEntry()] }),
+    });
+
+    const invalidFields = drive.requests.filter((url) => {
+      const fields = new URL(url).searchParams.get('fields') ?? '';
+      return /(^|,)\s*etag\s*(,|$)/i.test(fields);
+    });
+    expect(invalidFields).toEqual([]);
   });
 
   it('no sube nada si todo coincide', async () => {
