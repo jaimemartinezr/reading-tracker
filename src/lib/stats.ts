@@ -189,3 +189,30 @@ export function bestDay(days: DayStat[]): DayStat | null {
   }
   return best;
 }
+
+/**
+ * Días del mes indicado (0 = enero) con sus estadísticas.
+ * Para el mes actual solo incluye los días transcurridos; para meses futuros, ninguno.
+ */
+export function monthDayStats(
+  year: number,
+  monthIndex: number,
+  books: Book[],
+  entries: Entry[],
+  today: string = todayISO(),
+): DayStat[] {
+  const pad = (value: number) => String(value).padStart(2, '0');
+  const prefix = `${year}-${pad(monthIndex + 1)}`;
+  const firstDay = `${prefix}-01`;
+  if (firstDay > today) return [];
+
+  const totalDays = new Date(year, monthIndex + 1, 0).getDate();
+  const isCurrentMonth = today.startsWith(prefix);
+  const lastDay = isCurrentMonth ? Number(today.slice(8)) : totalDays;
+
+  const days: DayStat[] = [];
+  for (let day = 1; day <= lastDay; day += 1) {
+    days.push(buildDayStat(`${prefix}-${pad(day)}`, books, entries));
+  }
+  return days;
+}

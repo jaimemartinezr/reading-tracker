@@ -20,7 +20,7 @@ Google Drive para tenerlos en todos tus dispositivos.
 - **Registro diario:** anota cuántas páginas leíste de cada libro, con fecha (hoy o días pasados).
   Los registros del mismo día y libro se suman; puedes eliminar cualquier registro.
 - **Cálculos automáticos:**
-  - páginas leídas hoy y en los últimos 7/30 días;
+  - páginas leídas hoy y en el mes que elijas (selector de mes y año);
   - porcentaje leído de cada libro (acumulado) y porcentaje del libro leído cada día;
   - porcentaje de tu biblioteca avanzado por día;
   - páginas restantes, ritmo medio y fecha estimada de fin;
@@ -36,7 +36,7 @@ Google Drive para tenerlos en todos tus dispositivos.
 
 1. Abre la app y pulsa **Añadir libro** (título y número de páginas).
 2. Cada día, en **Hoy**, elige el libro, escribe las páginas y pulsa **Registrar**.
-3. Consulta **Progreso** para ver el avance diario y por libro.
+3. Consulta **Progreso**, elige el mes y el año, y revisa el avance diario y por libro.
 4. Para sincronizar entre dispositivos, configura Google Drive (siguiente apartado) en cada
    dispositivo con el mismo Client ID.
 

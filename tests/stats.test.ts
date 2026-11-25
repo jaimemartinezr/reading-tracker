@@ -6,6 +6,7 @@ import {
   buildDayStat,
   lastNDays,
   libraryTotals,
+  monthDayStats,
   pagesOnDate,
   readingStreak,
 } from '../src/lib/stats';
@@ -169,6 +170,45 @@ describe('readingStreak', () => {
   it('devuelve 0 si no hay lectura reciente', () => {
     const entries = [day('2026-01-01', 'a')];
     expect(readingStreak(entries, '2026-01-10')).toBe(0);
+  });
+});
+
+describe('monthDayStats', () => {
+  const books = [makeBook()];
+
+  it('devuelve todos los días de un mes pasado', () => {
+    const days = monthDayStats(2026, 0, books, [], '2026-11-25');
+    expect(days).toHaveLength(31);
+    expect(days[0].date).toBe('2026-01-01');
+    expect(days[30].date).toBe('2026-01-31');
+  });
+
+  it('respeta los años bisiestos', () => {
+    expect(monthDayStats(2028, 1, books, [], '2029-01-10')).toHaveLength(29);
+    expect(monthDayStats(2027, 1, books, [], '2029-01-10')).toHaveLength(28);
+  });
+
+  it('en el mes actual solo incluye los días transcurridos', () => {
+    const days = monthDayStats(2026, 10, books, [], '2026-11-25');
+    expect(days).toHaveLength(25);
+    expect(days[24].date).toBe('2026-11-25');
+  });
+
+  it('no devuelve días para un mes futuro', () => {
+    expect(monthDayStats(2026, 11, books, [], '2026-11-25')).toEqual([]);
+  });
+
+  it('suma las páginas del mes y calcula el porcentaje de biblioteca', () => {
+    const entries = [
+      makeEntry({ id: 'a', date: '2026-03-02', pages: 10 }),
+      makeEntry({ id: 'b', date: '2026-03-02', pages: 5 }),
+      makeEntry({ id: 'c', date: '2026-04-01', pages: 40 }),
+    ];
+    const days = monthDayStats(2026, 2, [makeBook({ totalPages: 200 })], entries, '2026-11-25');
+    expect(days).toHaveLength(31);
+    expect(days[1].pages).toBe(15);
+    expect(days[1].libraryPercent).toBeCloseTo(7.5);
+    expect(days.reduce((sum, day) => sum + day.pages, 0)).toBe(15);
   });
 });
 
