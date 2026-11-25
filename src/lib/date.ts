@@ -51,6 +51,56 @@ export function formatWeekday(iso: string): string {
   return WEEKDAY_FORMAT.format(parseISODate(iso));
 }
 
+/** Fecha numérica en formato DD-MM-YYYY a partir de un ISO YYYY-MM-DD. */
+export function formatNumericDate(iso: string): string {
+  const [year, month, day] = iso.split('-');
+  return `${day}-${month}-${year}`;
+}
+
+/**
+ * Convierte una fecha escrita por el usuario a ISO YYYY-MM-DD.
+ * Acepta DD-MM-YYYY, DD/MM/YYYY, DD.MM.YYYY, DDMMYYYY y YYYY-MM-DD.
+ * Devuelve null si la fecha no existe (por ejemplo, 31-02-2026).
+ */
+export function parseNumericDate(text: string): string | null {
+  const cleaned = text.trim();
+  let day: number;
+  let month: number;
+  let year: number;
+
+  const isoMatch = cleaned.match(/^(\d{4})-(\d{2})-(\d{2})$/);
+  const separated = cleaned.match(/^(\d{1,2})[-/.](\d{1,2})[-/.](\d{4})$/);
+  if (isoMatch) {
+    year = Number(isoMatch[1]);
+    month = Number(isoMatch[2]);
+    day = Number(isoMatch[3]);
+  } else if (separated) {
+    day = Number(separated[1]);
+    month = Number(separated[2]);
+    year = Number(separated[3]);
+  } else {
+    const compact = cleaned.match(/^(\d{2})(\d{2})(\d{4})$/);
+    if (!compact) return null;
+    day = Number(compact[1]);
+    month = Number(compact[2]);
+    year = Number(compact[3]);
+  }
+
+  if (year < 1900 || year > 2200 || month < 1 || month > 12 || day < 1 || day > 31) {
+    return null;
+  }
+
+  const date = new Date(year, month - 1, day);
+  if (
+    date.getFullYear() !== year ||
+    date.getMonth() !== month - 1 ||
+    date.getDate() !== day
+  ) {
+    return null;
+  }
+  return toISODate(date);
+}
+
 export function formatDateTime(isoTimestamp: string): string {
   return new Intl.DateTimeFormat('es-ES', {
     day: 'numeric',

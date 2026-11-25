@@ -464,6 +464,54 @@ select.input {
   cursor: pointer;
 }
 
+.date-field {
+  position: relative;
+}
+
+.date-field .input {
+  padding-right: 42px;
+}
+
+.date-icon {
+  position: absolute;
+  top: 50%;
+  right: 13px;
+  display: flex;
+  color: var(--ink-3);
+  transform: translateY(-50%);
+  pointer-events: none;
+}
+
+/* Input nativo invisible sobre el icono: abre el calendario del sistema. */
+.date-native {
+  position: absolute;
+  top: 50%;
+  right: 4px;
+  z-index: 2;
+  width: 34px;
+  height: 34px;
+  padding: 0;
+  border: 0;
+  opacity: 0;
+  cursor: pointer;
+  transform: translateY(-50%);
+}
+
+.date-field.is-invalid .input {
+  border-color: var(--danger);
+}
+
+.date-field.is-invalid .date-icon {
+  color: var(--danger);
+}
+
+.date-error {
+  margin-top: 5px;
+  font-size: 11.5px;
+  line-height: 1.4;
+  color: var(--danger);
+}
+
 .form-grid {
   display: grid;
   grid-template-columns: 1fr 1fr;

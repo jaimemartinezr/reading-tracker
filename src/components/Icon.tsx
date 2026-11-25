@@ -20,7 +20,8 @@ export type IconName =
   | 'external'
   | 'chevron'
   | 'book'
-  | 'alert';
+  | 'alert'
+  | 'calendar';
 
 const SHAPES: Record<IconName, ReactNode> = {
   today: (
@@ -94,6 +95,12 @@ const SHAPES: Record<IconName, ReactNode> = {
     <>
       <circle cx="12" cy="12" r="9" />
       <path d="M12 8v5M12 16h.01" />
+    </>
+  ),
+  calendar: (
+    <>
+      <rect x="3.5" y="5" width="17" height="15.5" rx="3" />
+      <path d="M8 3v4M16 3v4M3.5 10h17" />
     </>
   ),
 };

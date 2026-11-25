@@ -11,6 +11,7 @@ import {
 } from '../lib/stats';
 import { formatLongDate, formatWeekday, todayISO } from '../lib/date';
 import { formatNumber, formatPercent } from '../lib/format';
+import { DateField } from '../components/DateField';
 import { Icon } from '../components/Icon';
 
 interface TodayScreenProps {
@@ -44,6 +45,7 @@ export function TodayScreen({ onNavigate, onAddBook }: TodayScreenProps) {
 
   const [selectedBookId, setSelectedBookId] = useState('');
   const [date, setDate] = useState(today);
+  const [dateValid, setDateValid] = useState(true);
   const [pages, setPages] = useState('');
 
   useEffect(() => {
@@ -76,6 +78,10 @@ export function TodayScreen({ onNavigate, onAddBook }: TodayScreenProps) {
       notify('Elige un libro antes de registrar páginas.', 'error');
       return;
     }
+    if (!dateValid) {
+      notify('La fecha no es válida. Usa el formato DD-MM-AAAA.', 'error');
+      return;
+    }
     if (!Number.isFinite(amount) || amount <= 0) {
       notify('Escribe cuántas páginas has leído (mayor que cero).', 'error');
       return;
@@ -88,6 +94,7 @@ export function TodayScreen({ onNavigate, onAddBook }: TodayScreenProps) {
     );
     setPages('');
     setDate(today);
+    setDateValid(true);
   };
 
   return (
@@ -172,14 +179,14 @@ export function TodayScreen({ onNavigate, onAddBook }: TodayScreenProps) {
                   ))}
                 </select>
               </label>
-              <label className="field">
+              <label className="field" htmlFor="reading-date">
                 <span className="label">Fecha</span>
-                <input
-                  className="input"
-                  type="date"
+                <DateField
+                  id="reading-date"
                   value={date}
                   max={today}
-                  onChange={(event) => setDate(event.target.value || today)}
+                  onChange={setDate}
+                  onValidityChange={setDateValid}
                 />
               </label>
               <div className="field pages-input">
