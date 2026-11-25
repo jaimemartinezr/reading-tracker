@@ -222,7 +222,10 @@ export async function uploadFileText(
   etag?: string,
 ): Promise<DriveFileMeta> {
   const headers: Record<string, string> = { 'Content-Type': 'application/json; charset=UTF-8' };
-  if (etag) headers['If-Match'] = etag;
+  const strongEtag = etag?.trim();
+  // Un ETag débil (W/"...") no es válido para If-Match; sin él, la comprobación
+  // por modifiedTime sigue protegiendo frente a escrituras concurrentes.
+  if (strongEtag && !/^W\//i.test(strongEtag)) headers['If-Match'] = strongEtag;
 
   const response = await driveFetch(
     `${UPLOAD_BASE}/files/${encodeURIComponent(fileId)}?uploadType=media&fields=id,modifiedTime&supportsAllDrives=true`,
