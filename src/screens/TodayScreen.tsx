@@ -1,5 +1,6 @@
 import { useEffect, useMemo, useState, type FormEvent } from 'react';
 import { useApp } from '../state/store';
+import type { Entry } from '../types';
 import type { Screen } from '../navigation';
 import {
   activeBooks,
@@ -10,10 +11,11 @@ import {
   libraryTotals,
   readingStreak,
 } from '../lib/stats';
-import { formatLongDate, formatWeekday, todayISO } from '../lib/date';
+import { formatLongDate, formatShortDate, formatWeekday, todayISO } from '../lib/date';
 import { formatNumber, formatPercent } from '../lib/format';
 import { positionHint, positionLabel } from '../lib/position';
 import { DateField } from '../components/DateField';
+import { EntryEditor } from '../components/EntryEditor';
 import { Icon } from '../components/Icon';
 
 interface TodayScreenProps {
@@ -36,10 +38,6 @@ export function TodayScreen({ onNavigate, onAddBook }: TodayScreenProps) {
     () => lastNDays(7, data.books, data.entries, today),
     [data.books, data.entries, today],
   );
-  const todayStat = useMemo(
-    () => buildDayStat(today, data.books, data.entries),
-    [data.books, data.entries, today],
-  );
   const streak = useMemo(
     () => readingStreak(activeEntries(data.entries, data.books), today),
     [data.entries, data.books, today],
@@ -49,6 +47,7 @@ export function TodayScreen({ onNavigate, onAddBook }: TodayScreenProps) {
   const [date, setDate] = useState(today);
   const [dateValid, setDateValid] = useState(true);
   const [pages, setPages] = useState('');
+  const [entryToEdit, setEntryToEdit] = useState<Entry | null>(null);
 
   useEffect(() => {
     setSelectedBookId((previous) =>
@@ -66,14 +65,21 @@ export function TodayScreen({ onNavigate, onAddBook }: TodayScreenProps) {
     return book ? bookStat(book, data.entries, today) : null;
   }, [selectedBookId, data.books, data.entries, today]);
 
-  const todayEntries = useMemo(() => {
+  const dayStat = useMemo(
+    () => buildDayStat(date, data.books, data.entries),
+    [date, data.books, data.entries],
+  );
+
+  const dateEntries = useMemo(() => {
     const activeIds = new Set(books.map((book) => book.id));
     return data.entries
       .filter(
-        (entry) => !entry.deletedAt && entry.date === today && activeIds.has(entry.bookId),
+        (entry) => !entry.deletedAt && entry.date === date && activeIds.has(entry.bookId),
       )
       .sort((a, b) => b.updatedAt.localeCompare(a.updatedAt));
-  }, [data.entries, books, today]);
+  }, [data.entries, books, date]);
+
+  const editingBook = entryToEdit ? bookById.get(entryToEdit.bookId) ?? null : null;
 
   const weekMax = Math.max(1, ...week.map((day) => day.pages));
 
@@ -252,16 +258,21 @@ export function TodayScreen({ onNavigate, onAddBook }: TodayScreenProps) {
 
           <section className="card">
             <div className="section-head">
-              <h2>Registros de hoy</h2>
-              <span className="muted">{formatNumber(todayStat.pages)} páginas</span>
+              <h2>{date === today ? 'Registros de hoy' : 'Registros del día'}</h2>
+              <span className="muted">
+                {date === today ? '' : `${formatShortDate(date)} · `}
+                {formatNumber(dayStat.pages)} páginas
+              </span>
             </div>
-            {todayEntries.length === 0 ? (
+            {dateEntries.length === 0 ? (
               <p className="empty-line">
-                Aún no has registrado páginas hoy. Cuando lo hagas, aparecerán aquí.
+                {date === today
+                  ? 'Aún no has registrado páginas hoy. Cuando lo hagas, aparecerán aquí.'
+                  : 'No hay registros para esta fecha.'}
               </p>
             ) : (
               <ul className="entry-list">
-                {todayEntries.map((entry) => {
+                {dateEntries.map((entry) => {
                   const book = bookById.get(entry.bookId);
                   if (!book) return null;
                   return (
@@ -274,6 +285,16 @@ export function TodayScreen({ onNavigate, onAddBook }: TodayScreenProps) {
                           {formatPercent((entry.pages / book.totalPages) * 100)} del libro
                         </span>
                       </div>
+                      <button
+                        type="button"
+                        className="text-btn entry-adjust"
+                        onClick={() => setEntryToEdit(entry)}
+                        aria-label={`Ajustar páginas de ${book.title}`}
+                        title="Ajustar o restar páginas"
+                      >
+                        <Icon name="edit" size={14} />
+                        Ajustar
+                      </button>
                       <button
                         type="button"
                         className="icon-btn"
@@ -340,6 +361,14 @@ export function TodayScreen({ onNavigate, onAddBook }: TodayScreenProps) {
           </section>
         </>
       )}
+
+      {entryToEdit && editingBook ? (
+        <EntryEditor
+          entry={entryToEdit}
+          book={editingBook}
+          onClose={() => setEntryToEdit(null)}
+        />
+      ) : null}
     </div>
   );
 }

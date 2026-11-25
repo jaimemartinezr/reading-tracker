@@ -21,6 +21,8 @@ Google Drive para tenerlos en todos tus dispositivos.
 - **Biblioteca:** alta de libros con título, autor opcional, total de páginas y color.
 - **Registro diario:** anota cuántas páginas leíste de cada libro, con fecha (hoy o días pasados).
   Los registros del mismo día y libro se suman; puedes eliminar cualquier registro.
+- **Corrección de errores:** en **Registros del día** elige la fecha y pulsa **Ajustar** para restar
+  páginas con botones rápidos o escribir el total correcto. Si queda en 0, el registro se elimina.
 - **Cálculos automáticos:**
   - páginas leídas hoy y en el mes que elijas (selector de mes y año);
   - página actual en la que vas de cada libro («Página 139 de 640»);

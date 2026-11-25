@@ -52,6 +52,7 @@ export interface AppContextValue {
   updateBook: (id: string, input: BookInput) => void;
   deleteBook: (id: string) => void;
   logPages: (bookId: string, date: string, pages: number) => void;
+  updateEntryPages: (id: string, pages: number) => void;
   deleteEntry: (id: string) => void;
   setClientId: (clientId: string) => void;
   setMode: (mode: UsageMode) => Promise<SyncResult>;
@@ -377,6 +378,21 @@ export function AppProvider({ children }: { children: ReactNode }) {
     [touchData],
   );
 
+  const updateEntryPages = useCallback(
+    (id: string, pages: number) => {
+      const amount = Math.round(pages);
+      if (!Number.isFinite(amount) || amount < 0) return;
+      const now = new Date().toISOString();
+      const entries = dataRef.current.entries.map((entry) => {
+        if (entry.id !== id) return entry;
+        if (amount === 0) return { ...entry, deletedAt: now, updatedAt: now };
+        return { ...entry, pages: amount, updatedAt: now };
+      });
+      touchData(dataRef.current.books, entries);
+    },
+    [touchData],
+  );
+
   const deleteEntry = useCallback(
     (id: string) => {
       const now = new Date().toISOString();
@@ -530,6 +546,7 @@ export function AppProvider({ children }: { children: ReactNode }) {
     updateBook,
     deleteBook,
     logPages,
+    updateEntryPages,
     deleteEntry,
     setClientId,
     setMode,
