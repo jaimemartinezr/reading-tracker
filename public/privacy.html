@@ -1,0 +1,241 @@
+<!doctype html>
+<html lang="es">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="theme-color" content="#faf6ef" />
+    <meta name="color-scheme" content="light dark" />
+    <title>Política de privacidad · Páginas</title>
+    <meta
+      name="description"
+      content="Política de privacidad de Páginas, un registro de lectura local-first que guarda los datos en tu dispositivo y en tu propio Google Drive."
+    />
+    <link rel="icon" type="image/svg+xml" href="./favicon.svg" />
+    <style>
+      :root {
+        --bg: #f6f1e7;
+        --surface: #fffdf9;
+        --ink: #221e18;
+        --ink-2: #5f564a;
+        --ink-3: #8b8072;
+        --line: #e5dbcb;
+        --accent: #b4532b;
+      }
+      @media (prefers-color-scheme: dark) {
+        :root {
+          --bg: #12100c;
+          --surface: #1a1712;
+          --ink: #f3ece0;
+          --ink-2: #bdb2a1;
+          --ink-3: #8d8272;
+          --line: #2e2820;
+          --accent: #e0855a;
+        }
+      }
+      * {
+        box-sizing: border-box;
+      }
+      body {
+        margin: 0;
+        padding: 48px 20px 72px;
+        background:
+          radial-gradient(900px 500px at 10% -10%, var(--surface) 0%, transparent 60%),
+          var(--bg);
+        color: var(--ink);
+        font-family: 'Inter', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
+        font-size: 15.5px;
+        line-height: 1.7;
+        -webkit-font-smoothing: antialiased;
+      }
+      main {
+        max-width: 720px;
+        margin: 0 auto;
+      }
+      a {
+        color: var(--accent);
+        text-underline-offset: 2px;
+      }
+      .back {
+        display: inline-block;
+        margin-bottom: 28px;
+        font-size: 14px;
+        text-decoration: none;
+      }
+      .eyebrow {
+        margin: 0;
+        font-size: 11px;
+        letter-spacing: 0.15em;
+        text-transform: uppercase;
+        color: var(--ink-3);
+      }
+      h1 {
+        margin: 6px 0 4px;
+        font-family: 'Fraunces', Georgia, 'Times New Roman', serif;
+        font-weight: 500;
+        font-size: clamp(32px, 5vw, 42px);
+        line-height: 1.1;
+        letter-spacing: -0.02em;
+      }
+      .date {
+        margin: 0 0 30px;
+        font-size: 13px;
+        color: var(--ink-3);
+      }
+      h2 {
+        margin: 34px 0 10px;
+        font-family: 'Fraunces', Georgia, 'Times New Roman', serif;
+        font-weight: 500;
+        font-size: 21px;
+        letter-spacing: -0.01em;
+      }
+      p,
+      li {
+        color: var(--ink-2);
+      }
+      p {
+        margin: 0 0 14px;
+      }
+      ul {
+        margin: 0 0 14px;
+        padding-left: 22px;
+      }
+      li {
+        margin-bottom: 6px;
+      }
+      strong {
+        color: var(--ink);
+        font-weight: 600;
+      }
+      .card {
+        margin-top: 30px;
+        padding: 18px 20px;
+        border: 1px solid var(--line);
+        border-radius: 16px;
+        background: var(--surface);
+        font-size: 14px;
+        color: var(--ink-3);
+      }
+      footer {
+        margin-top: 40px;
+        padding-top: 18px;
+        border-top: 1px solid var(--line);
+        font-size: 13px;
+        color: var(--ink-3);
+      }
+      code {
+        padding: 1px 5px;
+        border-radius: 5px;
+        background: var(--line);
+        font-size: 12.5px;
+        color: var(--ink);
+      }
+    </style>
+  </head>
+  <body>
+    <main>
+      <a class="back" href="./">← Volver a Páginas</a>
+      <p class="eyebrow">Páginas · registro de lectura</p>
+      <h1>Política de privacidad</h1>
+      <p class="date">Última actualización: 25 de noviembre de 2026</p>
+
+      <p>
+        <strong>Páginas</strong> es una aplicación personal de registro de lectura que funciona en el
+        navegador. Esta política explica qué datos trata, dónde se guardan y cómo puedes eliminarlos.
+        No hay cuentas propias, servidores de la aplicación ni analítica.
+      </p>
+
+      <h2>1. Qué datos se guardan</h2>
+      <ul>
+        <li>Los libros que añades: título, autor opcional, número de páginas y color.</li>
+        <li>Los registros de lectura: fecha y número de páginas leídas de cada libro.</li>
+        <li>La configuración de sincronización: tu Client ID de Google, identificadores internos del archivo de Drive y la fecha de la última sincronización.</li>
+      </ul>
+      <p>
+        No se recopilan datos personales adicionales, ni se usa publicidad, ni se comparten datos con
+        terceros.
+      </p>
+
+      <h2>2. Dónde se almacenan</h2>
+      <p>
+        Los datos se guardan primero en el <strong>almacenamiento local del navegador</strong>
+        (<code>localStorage</code>) del dispositivo. Si conectas Google Drive, se sincronizan en un
+        archivo <code>lecturas.json</code> dentro de una carpeta llamada
+        <strong>«Proyecto Lectura»</strong> en tu propio Google Drive. El responsable de ese archivo
+        eres tú.
+      </p>
+      <p>
+        La aplicación no envía tus datos a ningún servidor propio: la comunicación es directamente
+        entre tu navegador y Google Drive.
+      </p>
+
+      <h2>3. Acceso a Google Drive</h2>
+      <p>
+        Al conectar Drive, la app solicita únicamente el permiso
+        <code>https://www.googleapis.com/auth/drive.file</code>. Este permiso permite crear, leer y
+        modificar <strong>solo los archivos que la propia app ha creado</strong>; no puede ver ni
+        tocar el resto de tu Drive.
+      </p>
+      <p>
+        El token de acceso de Google se mantiene en memoria mientras usas la app y no se guarda de
+        forma permanente. Puedes revocar el acceso en cualquier momento desde la propia app
+        (Ajustes → Desconectar) o desde
+        <a href="https://myaccount.google.com/permissions" target="_blank" rel="noreferrer"
+          >la configuración de tu cuenta de Google</a
+        >.
+      </p>
+      <p>
+        El uso que Páginas hace de la información recibida de las APIs de Google se ajusta a la
+        <a
+          href="https://developers.google.com/terms/api-services-user-data-policy"
+          target="_blank"
+          rel="noreferrer"
+          >Política de datos de usuario de los servicios de las APIs de Google</a
+        >, incluidos sus requisitos de uso limitado (<em>Limited Use</em>). Los datos solo se usan
+        para mostrarte tu progreso de lectura y sincronizarlo entre tus dispositivos.
+      </p>
+
+      <h2>4. Conservación y eliminación</h2>
+      <ul>
+        <li>Puedes eliminar libros y registros concretos desde la app.</li>
+        <li>
+          <strong>Ajustes → Borrar todo</strong> elimina todos los datos del dispositivo y, al
+          sincronizar, también del archivo de Drive.
+        </li>
+        <li>
+          Puedes borrar manualmente la carpeta «Proyecto Lectura» desde Google Drive; la app la
+          recreará vacía si vuelves a sincronizar.
+        </li>
+        <li>
+          Al desconectar Drive se revoca el token y los datos locales permanecen en el dispositivo
+          hasta que los borres.
+        </li>
+      </ul>
+
+      <h2>5. Seguridad</h2>
+      <p>
+        La app se sirve por HTTPS y se comunica con Google mediante OAuth 2.0. Los datos locales
+        dependen de la seguridad de tu dispositivo y de tu navegador. Como copia de seguridad puedes
+        exportar un JSON desde Ajustes.
+      </p>
+
+      <h2>6. Contacto</h2>
+      <p>
+        Para cualquier duda sobre esta política o para solicitar la eliminación de datos, abre una
+        incidencia en
+        <a href="https://github.com/jaimemartinezr/reading-tracker/issues" target="_blank" rel="noreferrer"
+          >github.com/jaimemartinezr/reading-tracker/issues</a
+        >.
+      </p>
+
+      <div class="card">
+        Esta aplicación es un proyecto personal sin ánimo de lucro. No se venden datos ni se usan
+        para entrenar modelos, publicidad o elaboración de perfiles.
+      </div>
+
+      <footer>
+        Páginas · <a href="./terms.html">Términos del servicio</a> ·
+        <a href="./">Volver a la aplicación</a>
+      </footer>
+    </main>
+  </body>
+</html>

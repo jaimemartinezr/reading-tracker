@@ -72,8 +72,17 @@ crear tu propio **Client ID** en Google Cloud. Es gratis y solo lo usas tú.
 > Drive, la app la recrea en la siguiente sincronización.
 >
 > Mientras la pantalla de consentimiento esté en modo **Prueba**, Google caduca el acceso cada
-> 7 días y tendrás que volver a pulsar «Reconectar Drive». Para evitarlo, publica la app en
-> *Pantalla de consentimiento → Publicar app* (seguirá siendo solo para ti).
+> 7 días y tendrás que volver a pulsar «Reconectar Drive», y solo podrán entrar las cuentas
+> añadidas como *usuarios de prueba*.
+>
+> Para pasar a producción sin verificación (el scope `drive.file` es no sensible), rellena el
+> **Branding** con estas URLs:
+>
+> - Página principal: <https://jaimemartinezr.github.io/reading-tracker/>
+> - Política de privacidad: <https://jaimemartinezr.github.io/reading-tracker/privacy.html>
+> - Términos del servicio: <https://jaimemartinezr.github.io/reading-tracker/terms.html>
+>
+> y añade `jaimemartinezr.github.io` en *Dominios autorizados*.
 
 ## Desarrollo local
 

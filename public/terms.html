@@ -1,0 +1,214 @@
+<!doctype html>
+<html lang="es">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="theme-color" content="#faf6ef" />
+    <meta name="color-scheme" content="light dark" />
+    <title>Términos del servicio · Páginas</title>
+    <meta
+      name="description"
+      content="Términos del servicio de Páginas, registro de lectura personal con sincronización opcional en Google Drive."
+    />
+    <link rel="icon" type="image/svg+xml" href="./favicon.svg" />
+    <style>
+      :root {
+        --bg: #f6f1e7;
+        --surface: #fffdf9;
+        --ink: #221e18;
+        --ink-2: #5f564a;
+        --ink-3: #8b8072;
+        --line: #e5dbcb;
+        --accent: #b4532b;
+      }
+      @media (prefers-color-scheme: dark) {
+        :root {
+          --bg: #12100c;
+          --surface: #1a1712;
+          --ink: #f3ece0;
+          --ink-2: #bdb2a1;
+          --ink-3: #8d8272;
+          --line: #2e2820;
+          --accent: #e0855a;
+        }
+      }
+      * {
+        box-sizing: border-box;
+      }
+      body {
+        margin: 0;
+        padding: 48px 20px 72px;
+        background:
+          radial-gradient(900px 500px at 10% -10%, var(--surface) 0%, transparent 60%),
+          var(--bg);
+        color: var(--ink);
+        font-family: 'Inter', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
+        font-size: 15.5px;
+        line-height: 1.7;
+        -webkit-font-smoothing: antialiased;
+      }
+      main {
+        max-width: 720px;
+        margin: 0 auto;
+      }
+      a {
+        color: var(--accent);
+        text-underline-offset: 2px;
+      }
+      .back {
+        display: inline-block;
+        margin-bottom: 28px;
+        font-size: 14px;
+        text-decoration: none;
+      }
+      .eyebrow {
+        margin: 0;
+        font-size: 11px;
+        letter-spacing: 0.15em;
+        text-transform: uppercase;
+        color: var(--ink-3);
+      }
+      h1 {
+        margin: 6px 0 4px;
+        font-family: 'Fraunces', Georgia, 'Times New Roman', serif;
+        font-weight: 500;
+        font-size: clamp(32px, 5vw, 42px);
+        line-height: 1.1;
+        letter-spacing: -0.02em;
+      }
+      .date {
+        margin: 0 0 30px;
+        font-size: 13px;
+        color: var(--ink-3);
+      }
+      h2 {
+        margin: 34px 0 10px;
+        font-family: 'Fraunces', Georgia, 'Times New Roman', serif;
+        font-weight: 500;
+        font-size: 21px;
+        letter-spacing: -0.01em;
+      }
+      p,
+      li {
+        color: var(--ink-2);
+      }
+      p {
+        margin: 0 0 14px;
+      }
+      ul {
+        margin: 0 0 14px;
+        padding-left: 22px;
+      }
+      li {
+        margin-bottom: 6px;
+      }
+      strong {
+        color: var(--ink);
+        font-weight: 600;
+      }
+      .card {
+        margin-top: 30px;
+        padding: 18px 20px;
+        border: 1px solid var(--line);
+        border-radius: 16px;
+        background: var(--surface);
+        font-size: 14px;
+        color: var(--ink-3);
+      }
+      footer {
+        margin-top: 40px;
+        padding-top: 18px;
+        border-top: 1px solid var(--line);
+        font-size: 13px;
+        color: var(--ink-3);
+      }
+    </style>
+  </head>
+  <body>
+    <main>
+      <a class="back" href="./">← Volver a Páginas</a>
+      <p class="eyebrow">Páginas · registro de lectura</p>
+      <h1>Términos del servicio</h1>
+      <p class="date">Última actualización: 25 de noviembre de 2026</p>
+
+      <p>
+        Estos términos regulan el uso de <strong>Páginas</strong>, una aplicación personal de
+        registro de lectura. Al usar la aplicación aceptas estas condiciones. Si no estás de acuerdo,
+        no la utilices.
+      </p>
+
+      <h2>1. Descripción del servicio</h2>
+      <p>
+        Páginas permite anotar libros, registrar las páginas leídas cada día y consultar estadísticas
+        de progreso. La aplicación se ejecuta en tu navegador y puede sincronizar los datos con tu
+        propio Google Drive. El servicio es gratuito y no tiene ánimo de lucro.
+      </p>
+
+      <h2>2. Uso personal</h2>
+      <ul>
+        <li>Puedes usar la aplicación para tu registro de lectura personal o compartirla con otras personas.</li>
+        <li>No debes usarla para almacenar contenido ilícito ni para vulnerar derechos de terceros.</li>
+        <li>Eres responsable de la cuenta de Google con la que conectas Drive y del contenido que guardas en ella.</li>
+      </ul>
+
+      <h2>3. Cuenta de Google y Google Drive</h2>
+      <p>
+        La sincronización es opcional y requiere autorizar el permiso
+        <code>drive.file</code>, que solo da acceso a los archivos creados por la propia aplicación.
+        El archivo <code>lecturas.json</code> se guarda en tu Drive y queda bajo tu control. Puedes
+        revocar el acceso desde la app o desde tu cuenta de Google en cualquier momento.
+      </p>
+      <p>
+        El uso de Google Drive también está sujeto a los términos y políticas de Google. Páginas no
+        controla la disponibilidad ni las condiciones del servicio de Google.
+      </p>
+
+      <h2>4. Tus datos y copias de seguridad</h2>
+      <p>
+        Los datos son tuyos. La aplicación no se hace responsable de pérdidas derivadas de borrar el
+        almacenamiento del navegador, de la papelera de Drive o de fallos del dispositivo. Puedes
+        descargar una copia en JSON desde <strong>Ajustes → Exportar JSON</strong> y restaurarla con
+        la importación.
+      </p>
+
+      <h2>5. Disponibilidad y garantías</h2>
+      <p>
+        La aplicación se ofrece <strong>«tal cual»</strong> y <strong>«según disponibilidad»</strong>,
+        sin garantías de ningún tipo, expresas o implícitas, incluidas las de comerciabilidad,
+        adecuación a un fin concreto o ausencia de errores. El servicio puede cambiar, interrumpirse
+        o dejar de mantenerse en cualquier momento.
+      </p>
+
+      <h2>6. Limitación de responsabilidad</h2>
+      <p>
+        En la medida permitida por la ley, el titular del proyecto no será responsable de daños
+        indirectos, incidentales o consecuentes derivados del uso o de la imposibilidad de uso de la
+        aplicación, incluida la pérdida de datos.
+      </p>
+
+      <h2>7. Cambios en los términos</h2>
+      <p>
+        Estos términos pueden actualizarse para reflejar cambios en la aplicación o en la normativa.
+        La fecha de la última actualización aparece al principio de esta página. El uso continuado
+        tras un cambio implica su aceptación.
+      </p>
+
+      <h2>8. Contacto</h2>
+      <p>
+        Para cualquier consulta sobre estos términos, abre una incidencia en
+        <a href="https://github.com/jaimemartinezr/reading-tracker/issues" target="_blank" rel="noreferrer"
+          >github.com/jaimemartinezr/reading-tracker/issues</a
+        >.
+      </p>
+
+      <div class="card">
+        Páginas es un proyecto personal. No se ofrece soporte comercial ni garantía de continuidad.
+      </div>
+
+      <footer>
+        Páginas · <a href="./privacy.html">Política de privacidad</a> ·
+        <a href="./">Volver a la aplicación</a>
+      </footer>
+    </main>
+  </body>
+</html>

@@ -288,6 +288,19 @@ export function SettingsScreen() {
           Cada dispositivo combina sus cambios con los del resto usando la fecha de modificación de
           cada registro, así que no se pierden lecturas aunque anotes en varios sitios.
         </p>
+        <p className="legal-links">
+          <a
+            href={`${import.meta.env.BASE_URL}privacy.html`}
+            target="_blank"
+            rel="noreferrer"
+          >
+            Política de privacidad
+          </a>
+          <span aria-hidden="true">·</span>
+          <a href={`${import.meta.env.BASE_URL}terms.html`} target="_blank" rel="noreferrer">
+            Términos del servicio
+          </a>
+        </p>
       </section>
 
       {confirmReset ? (
