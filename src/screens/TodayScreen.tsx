@@ -1,0 +1,331 @@
+import { useEffect, useMemo, useState, type FormEvent } from 'react';
+import { useApp } from '../state/store';
+import type { Screen } from '../navigation';
+import {
+  activeBooks,
+  activeEntries,
+  buildDayStat,
+  lastNDays,
+  libraryTotals,
+  readingStreak,
+} from '../lib/stats';
+import { formatLongDate, formatWeekday, todayISO } from '../lib/date';
+import { formatNumber, formatPercent } from '../lib/format';
+import { Icon } from '../components/Icon';
+
+interface TodayScreenProps {
+  onNavigate: (screen: Screen) => void;
+  onAddBook: () => void;
+}
+
+const QUICK_AMOUNTS = [5, 10, 25];
+
+export function TodayScreen({ onNavigate, onAddBook }: TodayScreenProps) {
+  const { data, logPages, deleteEntry, notify } = useApp();
+  const today = todayISO();
+
+  const books = useMemo(() => activeBooks(data.books), [data.books]);
+  const totals = useMemo(
+    () => libraryTotals(data.books, data.entries, today),
+    [data.books, data.entries, today],
+  );
+  const week = useMemo(
+    () => lastNDays(7, data.books, data.entries, today),
+    [data.books, data.entries, today],
+  );
+  const todayStat = useMemo(
+    () => buildDayStat(today, data.books, data.entries),
+    [data.books, data.entries, today],
+  );
+  const streak = useMemo(
+    () => readingStreak(activeEntries(data.entries, data.books), today),
+    [data.entries, data.books, today],
+  );
+
+  const [selectedBookId, setSelectedBookId] = useState('');
+  const [date, setDate] = useState(today);
+  const [pages, setPages] = useState('');
+
+  useEffect(() => {
+    setSelectedBookId((previous) =>
+      previous && books.some((book) => book.id === previous) ? previous : (books[0]?.id ?? ''),
+    );
+  }, [books]);
+
+  const bookById = useMemo(
+    () => new Map(data.books.map((book) => [book.id, book])),
+    [data.books],
+  );
+
+  const todayEntries = useMemo(() => {
+    const activeIds = new Set(books.map((book) => book.id));
+    return data.entries
+      .filter(
+        (entry) => !entry.deletedAt && entry.date === today && activeIds.has(entry.bookId),
+      )
+      .sort((a, b) => b.updatedAt.localeCompare(a.updatedAt));
+  }, [data.entries, books, today]);
+
+  const weekMax = Math.max(1, ...week.map((day) => day.pages));
+
+  const handleSubmit = (event: FormEvent) => {
+    event.preventDefault();
+    const book = bookById.get(selectedBookId);
+    const amount = Number(pages);
+    if (!book) {
+      notify('Elige un libro antes de registrar páginas.', 'error');
+      return;
+    }
+    if (!Number.isFinite(amount) || amount <= 0) {
+      notify('Escribe cuántas páginas has leído (mayor que cero).', 'error');
+      return;
+    }
+    logPages(book.id, date, amount);
+    notify(
+      `${formatNumber(Math.round(amount))} páginas de «${book.title}» ${
+        date === today ? 'registradas para hoy' : `registradas el ${formatLongDate(date)}`
+      }.`,
+    );
+    setPages('');
+    setDate(today);
+  };
+
+  return (
+    <div className="screen">
+      <header className="page-head">
+        <div>
+          <p className="eyebrow">{formatLongDate(today)}</p>
+          <h1 className="page-title">Hoy</h1>
+        </div>
+        <button type="button" className="btn ghost sm hide-sm" onClick={() => onNavigate('progress')}>
+          Ver progreso
+          <Icon name="chevron" size={16} />
+        </button>
+      </header>
+
+      <section className="hero">
+        <div className="hero-main">
+          <span className="hero-label">Páginas leídas hoy</span>
+          <p className="hero-number">{formatNumber(totals.pagesToday)}</p>
+          <p className="hero-sub">
+            <strong>{formatPercent(totals.percentToday)}</strong> de tu biblioteca
+            {totals.activeBooks > 0
+              ? ` · ${totals.activeBooks} ${totals.activeBooks === 1 ? 'libro' : 'libros'} en curso`
+              : ''}
+          </p>
+        </div>
+        <div className="hero-side">
+          <div className="hero-streak">
+            <Icon name="flame" size={18} />
+            <span>
+              {streak} {streak === 1 ? 'día' : 'días'} de racha
+            </span>
+          </div>
+          <div className="spark" aria-hidden="true">
+            {week.map((day) => (
+              <span
+                key={day.date}
+                className={day.pages > 0 ? 'is-active' : ''}
+                style={{ height: `${Math.max(8, (day.pages / weekMax) * 100)}%` }}
+                title={`${formatWeekday(day.date)}: ${day.pages} páginas`}
+              />
+            ))}
+          </div>
+          <p className="hero-footnote">Últimos 7 días</p>
+        </div>
+      </section>
+
+      {books.length === 0 ? (
+        <section className="empty-card">
+          <span className="empty-icon">
+            <Icon name="book" size={26} />
+          </span>
+          <h2>Tu estantería está vacía</h2>
+          <p>
+            Añade el libro que estás leyendo con su número de páginas y empieza a registrar tus
+            días de lectura.
+          </p>
+          <button type="button" className="btn primary" onClick={onAddBook}>
+            <Icon name="plus" size={18} />
+            Añadir mi primer libro
+          </button>
+        </section>
+      ) : (
+        <>
+          <section className="card composer">
+            <div className="section-head">
+              <h2>Registrar lectura</h2>
+              <span className="muted">Se suma al total del día</span>
+            </div>
+            <form className="composer-form" onSubmit={handleSubmit}>
+              <label className="field grow">
+                <span className="label">Libro</span>
+                <select
+                  className="input"
+                  value={selectedBookId}
+                  onChange={(event) => setSelectedBookId(event.target.value)}
+                >
+                  {books.map((book) => (
+                    <option key={book.id} value={book.id}>
+                      {book.title}
+                    </option>
+                  ))}
+                </select>
+              </label>
+              <label className="field">
+                <span className="label">Fecha</span>
+                <input
+                  className="input"
+                  type="date"
+                  value={date}
+                  max={today}
+                  onChange={(event) => setDate(event.target.value || today)}
+                />
+              </label>
+              <div className="field pages-input">
+                <label className="label" htmlFor="pages-to-log">
+                  Páginas
+                </label>
+                <div className="stepper">
+                  <button
+                    type="button"
+                    className="stepper-btn"
+                    aria-label="Restar 5 páginas"
+                    onClick={() => setPages(String(Math.max(0, (Number(pages) || 0) - 5)))}
+                  >
+                    <Icon name="minus" size={16} />
+                  </button>
+                  <input
+                    id="pages-to-log"
+                    className="input stepper-input"
+                    type="number"
+                    inputMode="numeric"
+                    min={1}
+                    max={100000}
+                    placeholder="0"
+                    value={pages}
+                    onChange={(event) => setPages(event.target.value)}
+                  />
+                  <button
+                    type="button"
+                    className="stepper-btn"
+                    aria-label="Sumar 5 páginas"
+                    onClick={() => setPages(String((Number(pages) || 0) + 5))}
+                  >
+                    <Icon name="plus" size={16} />
+                  </button>
+                </div>
+              </div>
+              <div className="quick-add" role="group" aria-label="Añadir cantidad rápida">
+                {QUICK_AMOUNTS.map((amount) => (
+                  <button
+                    key={amount}
+                    type="button"
+                    className="chip-btn"
+                    onClick={() => setPages(String((Number(pages) || 0) + amount))}
+                  >
+                    +{amount}
+                  </button>
+                ))}
+              </div>
+              <button type="submit" className="btn primary submit-btn">
+                Registrar
+              </button>
+            </form>
+          </section>
+
+          <section className="card">
+            <div className="section-head">
+              <h2>Registros de hoy</h2>
+              <span className="muted">{formatNumber(todayStat.pages)} páginas</span>
+            </div>
+            {todayEntries.length === 0 ? (
+              <p className="empty-line">
+                Aún no has registrado páginas hoy. Cuando lo hagas, aparecerán aquí.
+              </p>
+            ) : (
+              <ul className="entry-list">
+                {todayEntries.map((entry) => {
+                  const book = bookById.get(entry.bookId);
+                  if (!book) return null;
+                  return (
+                    <li className="entry" key={entry.id}>
+                      <span className="entry-dot" style={{ background: book.color }} />
+                      <div className="entry-body">
+                        <span className="entry-title">{book.title}</span>
+                        <span className="entry-meta">
+                          {formatNumber(entry.pages)} págs ·{' '}
+                          {formatPercent((entry.pages / book.totalPages) * 100)} del libro
+                        </span>
+                      </div>
+                      <button
+                        type="button"
+                        className="icon-btn"
+                        aria-label={`Quitar el registro de ${book.title}`}
+                        title="Quitar registro"
+                        onClick={() => {
+                          deleteEntry(entry.id);
+                          notify(`Registro de «${book.title}» eliminado.`, 'info');
+                        }}
+                      >
+                        <Icon name="close" size={16} />
+                      </button>
+                    </li>
+                  );
+                })}
+              </ul>
+            )}
+          </section>
+
+          <section>
+            <div className="section-head">
+              <h2>En curso</h2>
+              <button
+                type="button"
+                className="text-btn"
+                onClick={() => onNavigate('books')}
+              >
+                Toda la biblioteca
+                <Icon name="chevron" size={15} />
+              </button>
+            </div>
+            <div className="book-mini-grid">
+              {books.map((book) => {
+                const read = data.entries
+                  .filter((entry) => !entry.deletedAt && entry.bookId === book.id)
+                  .reduce((sum, entry) => sum + entry.pages, 0);
+                const pagesToday = todayStat.perBook[book.id] ?? 0;
+                const percent = Math.min(100, (read / book.totalPages) * 100);
+                return (
+                  <article
+                    className="book-mini"
+                    key={book.id}
+                    style={{ ['--book-color' as string]: book.color }}
+                  >
+                    <div className="mini-head">
+                      <span className="book-swatch" aria-hidden="true" />
+                      <h3 title={book.title}>{book.title}</h3>
+                      <span className="mini-percent">{formatPercent(percent)}</span>
+                    </div>
+                    <div className="progress">
+                      <div
+                        className="progress-fill"
+                        style={{ width: `${Math.max(percent, read > 0 ? 2 : 0)}%` }}
+                      />
+                    </div>
+                    <p className="mini-meta">
+                      {formatNumber(read)} de {formatNumber(book.totalPages)} págs ·{' '}
+                      {pagesToday > 0
+                        ? `+${formatNumber(pagesToday)} hoy`
+                        : 'sin páginas hoy'}
+                    </p>
+                  </article>
+                );
+              })}
+            </div>
+          </section>
+        </>
+      )}
+    </div>
+  );
+}

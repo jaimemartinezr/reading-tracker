@@ -1,0 +1,30 @@
+# Logs
+logs
+*.log
+npm-debug.log*
+
+# Dependencias y builds
+node_modules
+dist
+dist-ssr
+dev-dist
+coverage
+
+# Variables de entorno locales
+.env
+.env.local
+.env.*.local
+
+# Editores y sistema
+.vscode/*
+!.vscode/extensions.json
+.idea
+.DS_Store
+*.suo
+*.ntvs*
+*.njsproj
+*.sln
+*.sw?
+
+# Vite
+*.local
