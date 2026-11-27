@@ -128,7 +128,9 @@ export function PagesChart({ days, books, entries }: PagesChartProps) {
                         aria-label={`${book.title}: ${formatNumber(pages)} páginas el ${formatShortDate(
                           day.date,
                         )}`}
-                        title={`${book.title}: ${formatNumber(pages)} páginas`}
+                        title={`${book.title}: ${formatNumber(
+                          pages,
+                        )} páginas el ${formatShortDate(day.date)}`}
                       />
                     );
                   })}
@@ -162,12 +164,11 @@ export function PagesChart({ days, books, entries }: PagesChartProps) {
             <span className="chart-legend-dot" style={{ background: selectedBook.color }} />
             <strong>{selectedBook.title}</strong>
             <span>
-              {' · '}
-              {formatNumber(selectedPages)} págs ({formatPercent(selectedBookPercent)}) · pág.{' '}
+              {' · +'}
+              {formatNumber(selectedPages)} pags (+{formatPercent(selectedBookPercent)}) · pag{' '}
               {formatNumber(Math.max(0, selectedPageReached))} de{' '}
-              {formatNumber(selectedRange?.endPage ?? 0)} ·{' '}
-              {formatPercent(selectedAccumulatedPercent)} acumulado ·{' '}
-              {formatShortDate(selected.date)}
+              {formatNumber(selectedRange?.endPage ?? 0)} (
+              {formatPercent(selectedAccumulatedPercent)})
             </span>
             <button
               type="button"
