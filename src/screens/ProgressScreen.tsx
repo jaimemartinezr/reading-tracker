@@ -11,6 +11,7 @@ import {
 import { formatShortDate, formatWeekday, todayISO } from '../lib/date';
 import { formatNumber, formatPages, formatPercent } from '../lib/format';
 import { positionLabel } from '../lib/position';
+import { bookLabel } from '../lib/books';
 import { PagesChart } from '../components/PagesChart';
 import { Icon } from '../components/Icon';
 
@@ -250,7 +251,7 @@ export function ProgressScreen() {
                 <li key={row.book.id} className="per-book">
                   <div className="per-book-head">
                     <span className="entry-dot" style={{ background: row.book.color }} />
-                    <span className="per-book-title">{row.book.title}</span>
+                    <span className="per-book-title">{bookLabel(row.book)}</span>
                     <span className="per-book-percent">{formatPercent(row.percentMonth)}</span>
                   </div>
                   <div
@@ -259,7 +260,7 @@ export function ProgressScreen() {
                     aria-valuemin={0}
                     aria-valuemax={100}
                     aria-valuenow={Math.round(row.percentMonth)}
-                    aria-label={`${row.book.title}: ${formatPercent(row.percentMonth)} leído este mes`}
+                    aria-label={`${bookLabel(row.book)}: ${formatPercent(row.percentMonth)} leído este mes`}
                   >
                     <div
                       className="progress-fill"
@@ -317,7 +318,7 @@ export function ProgressScreen() {
                           return (
                             <span className="chip" key={bookId}>
                               <span className="chip-dot" style={{ background: book.color }} />
-                              {book.title} · +{formatNumber(pages)} págs (+
+                              {bookLabel(book)} · +{formatNumber(pages)} págs (+
                               {formatPercent((pages / range.readingPages) * 100)}) · pág{' '}
                               {formatNumber(absolutePage)} de {formatNumber(range.endPage)} (
                               {formatPercent(accumulatedPercent)})

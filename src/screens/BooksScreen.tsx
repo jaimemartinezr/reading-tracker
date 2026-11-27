@@ -2,6 +2,7 @@ import { useEffect, useMemo, useState } from 'react';
 import { useApp } from '../state/store';
 import type { Book, BookInput } from '../types';
 import { activeBooks, bookStat, readingRange } from '../lib/stats';
+import { bookLabel } from '../lib/books';
 import { formatNumber } from '../lib/format';
 import { BookCard } from '../components/BookCard';
 import { BookForm } from '../components/BookForm';
@@ -44,7 +45,7 @@ export function BooksScreen({ formOpen, onFormClose }: BooksScreenProps) {
 
   const handleCreate = (input: BookInput) => {
     const book = addBook(input);
-    notify(`«${book.title}» añadido a tu biblioteca.`);
+    notify(`«${bookLabel(book)}» añadido a tu biblioteca.`);
   };
 
   const handleUpdate = (input: BookInput) => {
@@ -122,12 +123,12 @@ export function BooksScreen({ formOpen, onFormClose }: BooksScreenProps) {
       {pendingDelete ? (
         <ConfirmDialog
           title="Eliminar libro"
-          message={`«${pendingDelete.title}» y sus registros dejarán de contar en tus estadísticas. Esta acción se sincroniza con el resto de dispositivos.`}
+          message={`«${bookLabel(pendingDelete)}» y sus registros dejarán de contar en tus estadísticas. Esta acción se sincroniza con el resto de dispositivos.`}
           confirmLabel="Eliminar libro"
           onClose={() => setPendingDelete(null)}
           onConfirm={() => {
             deleteBook(pendingDelete.id);
-            notify(`«${pendingDelete.title}» eliminado.`, 'info');
+            notify(`«${bookLabel(pendingDelete)}» eliminado.`, 'info');
           }}
         />
       ) : null}

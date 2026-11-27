@@ -15,6 +15,7 @@ import {
 import { formatLongDate, formatShortDate, formatWeekday, todayISO } from '../lib/date';
 import { formatNumber, formatPercent } from '../lib/format';
 import { positionHint, positionLabel } from '../lib/position';
+import { bookLabel } from '../lib/books';
 import { DateField } from '../components/DateField';
 import { EntryEditor } from '../components/EntryEditor';
 import { Icon } from '../components/Icon';
@@ -102,7 +103,7 @@ export function TodayScreen({ onNavigate, onAddBook }: TodayScreenProps) {
     }
     logPages(book.id, date, amount);
     notify(
-      `${formatNumber(Math.round(amount))} páginas de «${book.title}» ${
+      `${formatNumber(Math.round(amount))} páginas de «${bookLabel(book)}» ${
         date === today ? 'registradas para hoy' : `registradas el ${formatLongDate(date)}`
       }.`,
     );
@@ -186,16 +187,17 @@ export function TodayScreen({ onNavigate, onAddBook }: TodayScreenProps) {
                 <select
                   className="input"
                   value={selectedBookId}
+                  title={selectedStat ? bookLabel(selectedStat.book) : undefined}
                   onChange={(event) => setSelectedBookId(event.target.value)}
                 >
                   {books.map((book) => (
                     <option key={book.id} value={book.id}>
-                      {book.title}
+                      {bookLabel(book)}
                     </option>
                   ))}
                 </select>
               </label>
-              <label className="field" htmlFor="reading-date">
+              <label className="field date-field-wrap" htmlFor="reading-date">
                 <span className="label">Fecha</span>
                 <DateField
                   id="reading-date"
@@ -281,7 +283,7 @@ export function TodayScreen({ onNavigate, onAddBook }: TodayScreenProps) {
                     <li className="entry" key={entry.id}>
                       <span className="entry-dot" style={{ background: book.color }} />
                       <div className="entry-body">
-                        <span className="entry-title">{book.title}</span>
+                        <span className="entry-title">{bookLabel(book)}</span>
                         <span className="entry-meta">
                           {formatNumber(entry.pages)} págs ·{' '}
                           {formatPercent((entry.pages / range.readingPages) * 100)} del libro
@@ -291,7 +293,7 @@ export function TodayScreen({ onNavigate, onAddBook }: TodayScreenProps) {
                         type="button"
                         className="text-btn entry-adjust"
                         onClick={() => setEntryToEdit(entry)}
-                        aria-label={`Ajustar páginas de ${book.title}`}
+                        aria-label={`Ajustar páginas de ${bookLabel(book)}`}
                         title="Ajustar o restar páginas"
                       >
                         <Icon name="edit" size={14} />
@@ -300,11 +302,11 @@ export function TodayScreen({ onNavigate, onAddBook }: TodayScreenProps) {
                       <button
                         type="button"
                         className="icon-btn"
-                        aria-label={`Quitar el registro de ${book.title}`}
+                        aria-label={`Quitar el registro de ${bookLabel(book)}`}
                         title="Quitar registro"
                         onClick={() => {
                           deleteEntry(entry.id);
-                          notify(`Registro de «${book.title}» eliminado.`, 'info');
+                          notify(`Registro de «${bookLabel(book)}» eliminado.`, 'info');
                         }}
                       >
                         <Icon name="close" size={16} />
@@ -339,7 +341,7 @@ export function TodayScreen({ onNavigate, onAddBook }: TodayScreenProps) {
                   >
                     <div className="mini-head">
                       <span className="book-swatch" aria-hidden="true" />
-                      <h3 title={book.title}>{book.title}</h3>
+                      <h3 title={bookLabel(book)}>{bookLabel(book)}</h3>
                       <span className="mini-percent">{formatPercent(stat.percent)}</span>
                     </div>
                     <div className="progress">

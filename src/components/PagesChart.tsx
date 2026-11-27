@@ -4,6 +4,7 @@ import type { DayStat } from '../lib/stats';
 import { bookPagesUpTo, readingRange } from '../lib/stats';
 import { formatShortDate, formatWeekday } from '../lib/date';
 import { formatNumber, formatPercent } from '../lib/format';
+import { bookLabel } from '../lib/books';
 import { Icon } from './Icon';
 
 interface PagesChartProps {
@@ -81,7 +82,7 @@ export function PagesChart({ days, books, entries }: PagesChartProps) {
           {chartBooks.map((book) => (
             <span className="chart-legend-item" key={book.id}>
               <span className="chart-legend-dot" style={{ background: book.color }} />
-              {book.title}
+              {bookLabel(book)}
             </span>
           ))}
         </div>
@@ -125,10 +126,10 @@ export function PagesChart({ days, books, entries }: PagesChartProps) {
                         style={{ flexGrow: pages, background: book.color }}
                         onClick={() => toggle(day.date, book.id)}
                         aria-pressed={isSelected}
-                        aria-label={`${book.title}: ${formatNumber(pages)} páginas el ${formatShortDate(
+                        aria-label={`${bookLabel(book)}: ${formatNumber(pages)} páginas el ${formatShortDate(
                           day.date,
                         )}`}
-                        title={`${book.title}: ${formatNumber(
+                        title={`${bookLabel(book)}: ${formatNumber(
                           pages,
                         )} páginas el ${formatShortDate(day.date)}`}
                       />
@@ -162,7 +163,7 @@ export function PagesChart({ days, books, entries }: PagesChartProps) {
         {selected && selectedBook && selectedDay ? (
           <>
             <span className="chart-legend-dot" style={{ background: selectedBook.color }} />
-            <strong>{selectedBook.title}</strong>
+            <strong>{bookLabel(selectedBook)}</strong>
             <span>
               {' · +'}
               {formatNumber(selectedPages)} págs (+{formatPercent(selectedBookPercent)}) · pág{' '}

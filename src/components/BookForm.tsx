@@ -27,6 +27,11 @@ export function BookForm({ book, onClose, onSubmit }: BookFormProps) {
       setError('Escribe el título del libro.');
       return;
     }
+    const cleanAuthor = author.trim();
+    if (!cleanAuthor) {
+      setError('Escribe el autor del libro.');
+      return;
+    }
     const totalPages = Number(pages);
     if (!Number.isFinite(totalPages) || totalPages <= 0) {
       setError('Indica un número de páginas mayor que cero.');
@@ -60,7 +65,7 @@ export function BookForm({ book, onClose, onSubmit }: BookFormProps) {
 
     onSubmit({
       title: cleanTitle,
-      author: author.trim() || undefined,
+      author: cleanAuthor,
       totalPages: total,
       startPage: start > 1 ? start : undefined,
       endPage: end < total ? end : undefined,
@@ -114,7 +119,7 @@ export function BookForm({ book, onClose, onSubmit }: BookFormProps) {
 
         <div className="form-grid">
           <label className="field">
-            <span className="label">Autor <span className="optional">(opcional)</span></span>
+            <span className="label">Autor</span>
             <input
               className="input"
               value={author}
@@ -122,6 +127,7 @@ export function BookForm({ book, onClose, onSubmit }: BookFormProps) {
               placeholder="Patrick Rothfuss"
               maxLength={160}
               autoComplete="off"
+              required
             />
           </label>
           <label className="field">

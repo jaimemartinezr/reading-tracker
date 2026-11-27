@@ -12,13 +12,14 @@ Google Drive para tenerlos en todos tus dispositivos.
 
 ![Hecho con React + TypeScript + Vite](https://img.shields.io/badge/React-19-1c1b18?style=flat-square)
 ![PWA](https://img.shields.io/badge/PWA-instalable-b4532b?style=flat-square)
-![Tests](https://img.shields.io/badge/tests-74-b4532b?style=flat-square)
+![Tests](https://img.shields.io/badge/tests-78-b4532b?style=flat-square)
 
 ## Qué hace
 
 - **Elección de modo al entrar:** solo en este dispositivo o sincronizado con Google Drive, y se
   puede cambiar en Ajustes.
-- **Biblioteca:** alta de libros con título, autor opcional, total de páginas y color.
+- **Biblioteca:** alta de libros con título, autor, total de páginas y color. Los libros se muestran siempre como
+  «Título - Autor».
 - **Rango de lectura:** define desde/hasta qué página cuenta el libro para saltar prólogos,
   introducciones, notas o índices. El progreso, la página actual y el fin estimado se calculan
   sobre ese rango.
@@ -241,7 +242,7 @@ sincronizar, dentro de tu cuenta. No hay analítica, servidores ni terceros.
 npm test
 ```
 
-74 tests cubren cálculos de páginas/porcentajes/rachas y rangos de lectura, el merge
+78 tests cubren cálculos de páginas/porcentajes/rachas y rangos de lectura, el merge
 multidispositivo (incluidos borrados y conflictos), el flujo completo de sincronización contra un
 Drive simulado y la persistencia del token de Google.
 

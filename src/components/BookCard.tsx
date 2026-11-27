@@ -2,6 +2,7 @@ import type { BookStat } from '../lib/stats';
 import { formatNumber, formatPercent } from '../lib/format';
 import { formatShortDate } from '../lib/date';
 import { positionLabel } from '../lib/position';
+import { bookLabel } from '../lib/books';
 import { Icon } from './Icon';
 
 interface ProgressRingProps {
@@ -65,10 +66,9 @@ export function BookCard({ stat, onEdit, onDelete }: BookCardProps) {
         <div className="book-heading">
           <span className="book-swatch" aria-hidden="true" />
           <div>
-            <h3 className="book-title" title={book.title}>
-              {book.title}
+            <h3 className="book-title" title={bookLabel(book)}>
+              {bookLabel(book)}
             </h3>
-            <p className="book-author">{book.author ?? 'Sin autor'}</p>
           </div>
         </div>
         <ProgressRing percent={stat.percent} color={book.color} />
@@ -80,7 +80,7 @@ export function BookCard({ stat, onEdit, onDelete }: BookCardProps) {
         aria-valuemin={0}
         aria-valuemax={100}
         aria-valuenow={Math.round(stat.percent)}
-        aria-label={`${book.title}: ${percentLabel} leído`}
+        aria-label={`${bookLabel(book)}: ${percentLabel} leído`}
       >
         <div
           className="progress-fill"
@@ -134,7 +134,7 @@ export function BookCard({ stat, onEdit, onDelete }: BookCardProps) {
           type="button"
           className="icon-btn danger"
           onClick={onDelete}
-          aria-label={`Eliminar ${book.title}`}
+          aria-label={`Eliminar ${bookLabel(book)}`}
           title="Eliminar libro"
         >
           <Icon name="trash" size={17} />

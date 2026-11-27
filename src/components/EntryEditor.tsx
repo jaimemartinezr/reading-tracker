@@ -2,6 +2,7 @@ import { useState } from 'react';
 import type { Book, Entry } from '../types';
 import { useApp } from '../state/store';
 import { formatLongDate } from '../lib/date';
+import { bookLabel } from '../lib/books';
 import { formatNumber, formatPercent } from '../lib/format';
 import { Modal } from './Modal';
 
@@ -57,7 +58,7 @@ export function EntryEditor({ entry, book, onClose }: EntryEditorProps) {
   return (
     <Modal
       title="Ajustar páginas"
-      description={`${book.title} · ${formatLongDate(entry.date)}`}
+      description={`${bookLabel(book)} · ${formatLongDate(entry.date)}`}
       onClose={onClose}
     >
       <div className="entry-editor">
