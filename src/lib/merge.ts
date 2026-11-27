@@ -59,6 +59,8 @@ export function dataSignature(data: AppData): string {
       book.title,
       book.author ?? '',
       book.totalPages,
+      book.startPage ?? 0,
+      book.endPage ?? 0,
       book.color,
       book.createdAt,
       book.updatedAt,

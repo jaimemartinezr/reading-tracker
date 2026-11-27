@@ -121,6 +121,12 @@ describe('sameContent', () => {
     expect(sameContent(a, b)).toBe(true);
   });
 
+  it('detecta cambios en el rango de lectura', () => {
+    const a = data({ books: [book({ totalPages: 400 })] });
+    const b = data({ books: [book({ totalPages: 400, startPage: 21, endPage: 380 })] });
+    expect(sameContent(a, b)).toBe(false);
+  });
+
   it('detecta cambios de contenido', () => {
     const a = data({ entries: [entry({ pages: 10 })] });
     const b = data({ entries: [entry({ pages: 11 })] });

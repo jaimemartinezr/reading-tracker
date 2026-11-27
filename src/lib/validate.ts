@@ -57,6 +57,19 @@ function sanitizeBook(raw: unknown, fallbackTime: string): Book | null {
   };
   const author = cleanString(raw.author, 160);
   if (author) book.author = author;
+
+  const rawStart = cleanPages(raw.startPage);
+  const rawEnd = cleanPages(raw.endPage);
+  if (rawStart !== null || rawEnd !== null) {
+    const startPage = rawStart === null ? 1 : Math.min(rawStart, totalPages);
+    const endPage = rawEnd === null ? totalPages : Math.min(rawEnd, totalPages);
+    // Si el rango es incoherente se ignora y cuenta el libro completo.
+    if (startPage <= endPage) {
+      if (startPage > 1) book.startPage = startPage;
+      if (endPage < totalPages) book.endPage = endPage;
+    }
+  }
+
   const deletedAt = cleanTimestamp(raw.deletedAt);
   if (deletedAt) book.deletedAt = deletedAt;
   return book;

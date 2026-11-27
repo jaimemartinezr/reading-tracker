@@ -9,6 +9,7 @@ import {
   libraryTotals,
   monthDayStats,
   pagesOnDate,
+  readingRange,
   readingStreak,
 } from '../src/lib/stats';
 
@@ -87,6 +88,62 @@ describe('lastNDays', () => {
       '2026-01-10',
     ]);
     expect(days[2].pages).toBe(12);
+  });
+});
+
+describe('rango de lectura', () => {
+  it('por defecto cuenta todo el libro', () => {
+    expect(readingRange(makeBook({ totalPages: 300 }))).toEqual({
+      startPage: 1,
+      endPage: 300,
+      readingPages: 300,
+    });
+  });
+
+  it('aplica y recorta el rango al total', () => {
+    expect(
+      readingRange(makeBook({ totalPages: 300, startPage: 21, endPage: 280 })),
+    ).toEqual({ startPage: 21, endPage: 280, readingPages: 260 });
+    expect(
+      readingRange(makeBook({ totalPages: 300, startPage: 0, endPage: 400 })),
+    ).toEqual({ startPage: 1, endPage: 300, readingPages: 300 });
+  });
+
+  it('calcula página actual, porcentaje y restante dentro del rango', () => {
+    const stat = bookStat(
+      makeBook({ totalPages: 300, startPage: 21, endPage: 280 }),
+      [makeEntry({ date: '2026-01-02', pages: 30 })],
+      '2026-01-10',
+    );
+    expect(stat.readingPages).toBe(260);
+    expect(stat.startPage).toBe(21);
+    expect(stat.endPage).toBe(280);
+    expect(stat.pagesRead).toBe(30);
+    expect(stat.currentPage).toBe(50);
+    expect(stat.percent).toBeCloseTo((30 / 260) * 100);
+    expect(stat.remainingPages).toBe(230);
+  });
+
+  it('al terminar el rango la página actual es la última de lectura', () => {
+    const stat = bookStat(
+      makeBook({ totalPages: 300, startPage: 21, endPage: 280 }),
+      [makeEntry({ date: '2026-01-02', pages: 290 })],
+      '2026-01-10',
+    );
+    expect(stat.currentPage).toBe(280);
+    expect(stat.percent).toBe(100);
+    expect(stat.remainingPages).toBe(0);
+    expect(stat.estimatedFinish).toBeNull();
+  });
+
+  it('el porcentaje de la biblioteca usa las páginas de lectura', () => {
+    const books = [makeBook({ totalPages: 300, startPage: 21, endPage: 280 })];
+    const entries = [makeEntry({ date: '2026-01-10', pages: 26 })];
+    const day = buildDayStat('2026-01-10', books, entries);
+    expect(day.libraryPercent).toBeCloseTo(10);
+    const totals = libraryTotals(books, entries, '2026-01-10');
+    expect(totals.totalPages).toBe(260);
+    expect(totals.percent).toBeCloseTo(10);
   });
 });
 

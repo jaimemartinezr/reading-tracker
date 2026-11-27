@@ -13,6 +13,20 @@ export function activeBooks(books: Book[]): Book[] {
   return books.filter(isVisibleBook);
 }
 
+export interface ReadingRange {
+  startPage: number;
+  endPage: number;
+  readingPages: number;
+}
+
+/** Rango de páginas que cuentan como lectura, con los valores por defecto aplicados. */
+export function readingRange(book: Book): ReadingRange {
+  const total = Math.max(1, Math.round(book.totalPages));
+  const start = Math.min(Math.max(1, Math.round(book.startPage ?? 1)), total);
+  const end = Math.min(Math.max(start, Math.round(book.endPage ?? total)), total);
+  return { startPage: start, endPage: end, readingPages: end - start + 1 };
+}
+
 export function activeEntries(entries: Entry[], books: Book[]): Entry[] {
   const ids = new Set(activeBooks(books).map((book) => book.id));
   return entries.filter((entry) => isVisibleEntry(entry) && ids.has(entry.bookId));
@@ -51,7 +65,7 @@ export interface DayStat {
 
 export function buildDayStat(date: string, books: Book[], entries: Entry[]): DayStat {
   const visibleBooks = activeBooks(books);
-  const totalPages = visibleBooks.reduce((sum, book) => sum + book.totalPages, 0);
+  const totalPages = visibleBooks.reduce((sum, book) => sum + readingRange(book).readingPages, 0);
   const perBook: Record<string, number> = {};
 
   for (const book of visibleBooks) {
@@ -92,8 +106,14 @@ export interface BookStat {
   remainingPages: number;
   /** Porcentaje del libro leído, entre 0 y 100. */
   percent: number;
-  /** Página en la que se encuentra el lector (páginas acumuladas, sin superar el total). */
+  /** Página en la que se encuentra el lector (páginas acumuladas, sin superar el final). */
   currentPage: number;
+  /** Primera página que cuenta como lectura. */
+  startPage: number;
+  /** Última página que cuenta como lectura. */
+  endPage: number;
+  /** Número de páginas que cuentan como lectura (endPage - startPage + 1). */
+  readingPages: number;
   /** Porcentaje del libro leído hoy. */
   percentToday: number;
   pagesToday: number;
@@ -106,6 +126,7 @@ export interface BookStat {
 }
 
 export function bookStat(book: Book, entries: Entry[], today: string = todayISO()): BookStat {
+  const range = readingRange(book);
   const mine = entries.filter(
     (entry) => isVisibleEntry(entry) && entry.bookId === book.id,
   );
@@ -119,9 +140,11 @@ export function bookStat(book: Book, entries: Entry[], today: string = todayISO(
   const lastReadDate = dates[dates.length - 1] ?? null;
   const daysReading = new Set(dates).size;
 
-  const percent = book.totalPages > 0 ? Math.min(100, (pagesRead / book.totalPages) * 100) : 0;
-  const currentPage = Math.min(pagesRead, book.totalPages);
-  const remainingPages = Math.max(0, book.totalPages - pagesRead);
+  const percent =
+    range.readingPages > 0 ? Math.min(100, (pagesRead / range.readingPages) * 100) : 0;
+  const currentPage =
+    pagesRead > 0 ? Math.min(range.startPage + pagesRead - 1, range.endPage) : 0;
+  const remainingPages = Math.max(0, range.readingPages - pagesRead);
 
   const spanDays = firstReadDate ? Math.max(1, daysBetween(firstReadDate, today) + 1) : 0;
   const pace = spanDays > 0 ? pagesRead / spanDays : 0;
@@ -136,8 +159,11 @@ export function bookStat(book: Book, entries: Entry[], today: string = todayISO(
     remainingPages,
     percent,
     currentPage,
+    startPage: range.startPage,
+    endPage: range.endPage,
+    readingPages: range.readingPages,
     percentToday:
-      book.totalPages > 0 ? Math.min(100, (pagesToday / book.totalPages) * 100) : 0,
+      range.readingPages > 0 ? Math.min(100, (pagesToday / range.readingPages) * 100) : 0,
     pagesToday,
     pace,
     estimatedFinish,
@@ -164,7 +190,7 @@ export function libraryTotals(
   today: string = todayISO(),
 ): LibraryTotals {
   const visible = activeBooks(books);
-  const totalPages = visible.reduce((sum, book) => sum + book.totalPages, 0);
+  const totalPages = visible.reduce((sum, book) => sum + readingRange(book).readingPages, 0);
   const valid = activeEntries(entries, books);
   const pagesRead = valid.reduce((sum, entry) => sum + entry.pages, 0);
   const pagesToday = valid

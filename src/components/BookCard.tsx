@@ -91,11 +91,18 @@ export function BookCard({ stat, onEdit, onDelete }: BookCardProps) {
         <span>
           <strong>{positionLabel(stat)}</strong>
           {stat.pagesRead <= 0 || stat.remainingPages <= 0
-            ? ` · ${formatNumber(book.totalPages)} páginas`
+            ? ` · ${formatNumber(stat.readingPages)} páginas`
             : null}
         </span>
         <span>{percentLabel} leído</span>
       </p>
+
+      {stat.startPage > 1 || stat.endPage < book.totalPages ? (
+        <p className="book-range">
+          Lectura: páginas {formatNumber(stat.startPage)}–{formatNumber(stat.endPage)} de{' '}
+          {formatNumber(book.totalPages)}
+        </p>
+      ) : null}
 
       <dl className="book-facts">
         <div>

@@ -1,6 +1,13 @@
 import { useMemo, useState } from 'react';
 import { useApp } from '../state/store';
-import { activeBooks, bestDay, bookPagesUpTo, bookStat, monthDayStats } from '../lib/stats';
+import {
+  activeBooks,
+  bestDay,
+  bookPagesUpTo,
+  bookStat,
+  monthDayStats,
+  readingRange,
+} from '../lib/stats';
 import { formatShortDate, formatWeekday, todayISO } from '../lib/date';
 import { formatNumber, formatPages, formatPercent } from '../lib/format';
 import { positionLabel } from '../lib/position';
@@ -90,7 +97,7 @@ export function ProgressScreen() {
   };
 
   const totalPages = days.reduce((sum, day) => sum + day.pages, 0);
-  const libraryPages = books.reduce((sum, book) => sum + book.totalPages, 0);
+  const libraryPages = books.reduce((sum, book) => sum + readingRange(book).readingPages, 0);
   const activeDays = days.filter((day) => day.pages > 0).length;
   const average = days.length > 0 ? totalPages / days.length : 0;
   const best = bestDay(days);
@@ -110,7 +117,10 @@ export function ProgressScreen() {
       return {
         book,
         pages,
-        percentMonth: book.totalPages > 0 ? Math.min(100, (pages / book.totalPages) * 100) : 0,
+        percentMonth:
+          allTime.readingPages > 0
+            ? Math.min(100, (pages / allTime.readingPages) * 100)
+            : 0,
         accumulated: allTime.percent,
         stat: allTime,
       };
@@ -261,7 +271,7 @@ export function ProgressScreen() {
                   </div>
                   <p className="per-book-meta">
                     {positionLabel(row.stat)} · {formatNumber(row.pages)} de{' '}
-                    {formatNumber(row.book.totalPages)} páginas este mes ·{' '}
+                    {formatNumber(row.stat.readingPages)} páginas este mes ·{' '}
                     {formatPercent(row.accumulated)} acumulado
                   </p>
                 </li>
@@ -295,16 +305,19 @@ export function ProgressScreen() {
                         {Object.entries(day.perBook).map(([bookId, pages]) => {
                           const book = bookById.get(bookId);
                           if (!book) return null;
+                          const range = readingRange(book);
                           const pageReached = Math.min(
                             bookPagesUpTo(data.entries, bookId, day.date),
-                            book.totalPages,
+                            range.readingPages,
                           );
+                          const absolutePage =
+                            pageReached > 0 ? range.startPage + pageReached - 1 : 0;
                           return (
                             <span className="chip" key={bookId}>
                               <span className="chip-dot" style={{ background: book.color }} />
                               {book.title} · {formatNumber(pages)} págs (
-                              {formatPercent((pages / book.totalPages) * 100)}) · pág.{' '}
-                              {formatNumber(pageReached)} de {formatNumber(book.totalPages)}
+                              {formatPercent((pages / range.readingPages) * 100)}) · pág.{' '}
+                              {formatNumber(absolutePage)} de {formatNumber(range.endPage)}
                             </span>
                           );
                         })}

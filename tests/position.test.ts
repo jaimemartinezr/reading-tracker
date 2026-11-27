@@ -41,6 +41,23 @@ describe('posición en el libro', () => {
     expect(positionHint(stat)).toBe('Vas por la página 75 de 200');
   });
 
+  it('con rango: empieza en la página indicada', () => {
+    const stat = bookStat(
+      book({ totalPages: 400, startPage: 21, endPage: 380 }),
+      [entry(30)],
+      '2026-01-10',
+    );
+    expect(stat.currentPage).toBe(50);
+    expect(positionLabel(stat)).toBe('Página 50 de 380');
+    expect(positionHint(stat)).toBe('Vas por la página 50 de 380');
+  });
+
+  it('con rango y sin empezar: indica la página de inicio', () => {
+    const stat = bookStat(book({ totalPages: 400, startPage: 21 }), [], '2026-01-10');
+    expect(positionLabel(stat)).toBe('Sin empezar');
+    expect(positionHint(stat)).toBe('Sin empezar · empieza en la página 21');
+  });
+
   it('terminado: no supera el total', () => {
     const stat = bookStat(book(), [entry(150), entry(90, '2026-01-03')], '2026-01-10');
     expect(stat.pagesRead).toBe(240);

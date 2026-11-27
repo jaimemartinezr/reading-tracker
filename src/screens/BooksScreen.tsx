@@ -1,7 +1,7 @@
 import { useEffect, useMemo, useState } from 'react';
 import { useApp } from '../state/store';
 import type { Book, BookInput } from '../types';
-import { activeBooks, bookStat } from '../lib/stats';
+import { activeBooks, bookStat, readingRange } from '../lib/stats';
 import { formatNumber } from '../lib/format';
 import { BookCard } from '../components/BookCard';
 import { BookForm } from '../components/BookForm';
@@ -59,7 +59,10 @@ export function BooksScreen({ formOpen, onFormClose }: BooksScreenProps) {
         <div>
           <p className="eyebrow">
             {books.length} {books.length === 1 ? 'libro' : 'libros'} ·{' '}
-            {formatNumber(books.reduce((sum, book) => sum + book.totalPages, 0))} páginas
+            {formatNumber(
+              books.reduce((sum, book) => sum + readingRange(book).readingPages, 0),
+            )}{' '}
+            páginas de lectura
           </p>
           <h1 className="page-title">Biblioteca</h1>
         </div>

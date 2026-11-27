@@ -5,6 +5,10 @@ export interface Book {
   title: string;
   author?: string;
   totalPages: number;
+  /** Primera página que cuenta como lectura (para saltar prólogos). Por defecto 1. */
+  startPage?: number;
+  /** Última página que cuenta como lectura (para saltar notas o índices). Por defecto totalPages. */
+  endPage?: number;
   color: string;
   createdAt: string;
   updatedAt: string;
@@ -53,6 +57,8 @@ export interface BookInput {
   title: string;
   author?: string;
   totalPages: number;
+  startPage?: number;
+  endPage?: number;
   color: string;
 }
 

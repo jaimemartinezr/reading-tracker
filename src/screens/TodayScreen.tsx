@@ -9,6 +9,7 @@ import {
   buildDayStat,
   lastNDays,
   libraryTotals,
+  readingRange,
   readingStreak,
 } from '../lib/stats';
 import { formatLongDate, formatShortDate, formatWeekday, todayISO } from '../lib/date';
@@ -275,6 +276,7 @@ export function TodayScreen({ onNavigate, onAddBook }: TodayScreenProps) {
                 {dateEntries.map((entry) => {
                   const book = bookById.get(entry.bookId);
                   if (!book) return null;
+                  const range = readingRange(book);
                   return (
                     <li className="entry" key={entry.id}>
                       <span className="entry-dot" style={{ background: book.color }} />
@@ -282,7 +284,7 @@ export function TodayScreen({ onNavigate, onAddBook }: TodayScreenProps) {
                         <span className="entry-title">{book.title}</span>
                         <span className="entry-meta">
                           {formatNumber(entry.pages)} págs ·{' '}
-                          {formatPercent((entry.pages / book.totalPages) * 100)} del libro
+                          {formatPercent((entry.pages / range.readingPages) * 100)} del libro
                         </span>
                       </div>
                       <button

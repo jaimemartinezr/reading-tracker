@@ -89,6 +89,42 @@ describe('sanitizeData', () => {
     expect(() => sanitizeData(null)).toThrow(InvalidDataError);
   });
 
+  it('conserva un rango de lectura válido', () => {
+    const data = sanitizeData({
+      books: [{ ...validBook, totalPages: 300, startPage: 21, endPage: 280 }],
+      entries: [],
+    });
+    expect(data.books[0].startPage).toBe(21);
+    expect(data.books[0].endPage).toBe(280);
+  });
+
+  it('recorta el rango al total de páginas', () => {
+    const data = sanitizeData({
+      books: [{ ...validBook, totalPages: 300, startPage: 10, endPage: 500 }],
+      entries: [],
+    });
+    expect(data.books[0].startPage).toBe(10);
+    expect(data.books[0].endPage).toBeUndefined();
+  });
+
+  it('ignora un rango incoherente', () => {
+    const data = sanitizeData({
+      books: [{ ...validBook, totalPages: 300, startPage: 200, endPage: 100 }],
+      entries: [],
+    });
+    expect(data.books[0].startPage).toBeUndefined();
+    expect(data.books[0].endPage).toBeUndefined();
+  });
+
+  it('no guarda el rango cuando cubre todo el libro', () => {
+    const data = sanitizeData({
+      books: [{ ...validBook, totalPages: 300, startPage: 1, endPage: 300 }],
+      entries: [],
+    });
+    expect(data.books[0].startPage).toBeUndefined();
+    expect(data.books[0].endPage).toBeUndefined();
+  });
+
   it('lanza si hay libros pero ninguno es válido', () => {
     expect(() => sanitizeData({ books: [{ title: 'x' }], entries: [] })).toThrow(
       InvalidDataError,

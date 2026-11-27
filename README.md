@@ -12,13 +12,16 @@ Google Drive para tenerlos en todos tus dispositivos.
 
 ![Hecho con React + TypeScript + Vite](https://img.shields.io/badge/React-19-1c1b18?style=flat-square)
 ![PWA](https://img.shields.io/badge/PWA-instalable-b4532b?style=flat-square)
-![Tests](https://img.shields.io/badge/tests-38-b4532b?style=flat-square)
+![Tests](https://img.shields.io/badge/tests-74-b4532b?style=flat-square)
 
 ## Qué hace
 
 - **Elección de modo al entrar:** solo en este dispositivo o sincronizado con Google Drive, y se
   puede cambiar en Ajustes.
 - **Biblioteca:** alta de libros con título, autor opcional, total de páginas y color.
+- **Rango de lectura:** define desde/hasta qué página cuenta el libro para saltar prólogos,
+  introducciones, notas o índices. El progreso, la página actual y el fin estimado se calculan
+  sobre ese rango.
 - **Registro diario:** anota cuántas páginas leíste de cada libro, con fecha (hoy o días pasados).
   Los registros del mismo día y libro se suman; puedes eliminar cualquier registro.
 - **Corrección de errores:** en **Registros del día** elige la fecha y pulsa **Ajustar** para restar
@@ -52,7 +55,9 @@ modo local la app no hace ninguna petición a Google.
 
 ## Cómo usarla
 
-1. Abre la app, elige el modo y pulsa **Añadir libro** (título y número de páginas).
+1. Abre la app, elige el modo y pulsa **Añadir libro** (título y número de páginas). Si el libro
+   tiene prólogo, notas o índices que no quieres contar, rellena **Páginas que cuentan como
+   lectura**.
 2. Cada día, en **Hoy**, elige el libro, escribe las páginas y pulsa **Registrar**.
 3. Consulta **Progreso**, elige el mes y el año, y revisa el avance diario y por libro.
 4. Para sincronizar entre dispositivos, configura Google Drive (siguiente apartado) en cada
@@ -236,8 +241,9 @@ sincronizar, dentro de tu cuenta. No hay analítica, servidores ni terceros.
 npm test
 ```
 
-38 tests cubren cálculos de páginas/porcentajes/rachas, el merge multidispositivo (incluidos
-borrados y conflictos) y el flujo completo de sincronización contra un Drive simulado.
+74 tests cubren cálculos de páginas/porcentajes/rachas y rangos de lectura, el merge
+multidispositivo (incluidos borrados y conflictos), el flujo completo de sincronización contra un
+Drive simulado y la persistencia del token de Google.
 
 ## Licencia
 

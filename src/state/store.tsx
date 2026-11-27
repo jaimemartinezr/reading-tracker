@@ -68,6 +68,21 @@ const AppContext = createContext<AppContextValue | null>(null);
 
 const AUTO_SYNC_DELAY = 4000;
 
+function normalizeRange(
+  input: BookInput,
+  totalPages: number,
+): { startPage: number; endPage: number } {
+  const startPage = Math.min(
+    Math.max(1, Math.round(input.startPage ?? 1)),
+    totalPages,
+  );
+  const endPage = Math.min(
+    Math.max(startPage, Math.round(input.endPage ?? totalPages)),
+    totalPages,
+  );
+  return { startPage, endPage };
+}
+
 export function AppProvider({ children }: { children: ReactNode }) {
   const [initial] = useState<PersistedState | null>(() => loadPersisted());
   const [data, setData] = useState<AppData>(() => initial?.data ?? emptyData());
@@ -300,14 +315,18 @@ export function AppProvider({ children }: { children: ReactNode }) {
   const addBook = useCallback(
     (input: BookInput): Book => {
       const now = new Date().toISOString();
+      const totalPages = Math.max(1, Math.round(input.totalPages));
+      const range = normalizeRange(input, totalPages);
       const book: Book = {
         id: newId(),
         title: input.title.trim().slice(0, 200),
-        totalPages: Math.max(1, Math.round(input.totalPages)),
+        totalPages,
         color: input.color,
         createdAt: now,
         updatedAt: now,
       };
+      if (range.startPage > 1) book.startPage = range.startPage;
+      if (range.endPage < totalPages) book.endPage = range.endPage;
       const author = input.author?.trim();
       if (author) book.author = author.slice(0, 160);
       touchData([...dataRef.current.books, book], dataRef.current.entries);
@@ -321,13 +340,19 @@ export function AppProvider({ children }: { children: ReactNode }) {
       const now = new Date().toISOString();
       const books = dataRef.current.books.map((book) => {
         if (book.id !== id) return book;
+        const totalPages = Math.max(1, Math.round(input.totalPages));
+        const range = normalizeRange(input, totalPages);
         const updated: Book = {
           ...book,
           title: input.title.trim().slice(0, 200),
-          totalPages: Math.max(1, Math.round(input.totalPages)),
+          totalPages,
           color: input.color,
           updatedAt: now,
         };
+        if (range.startPage > 1) updated.startPage = range.startPage;
+        else delete updated.startPage;
+        if (range.endPage < totalPages) updated.endPage = range.endPage;
+        else delete updated.endPage;
         const author = input.author?.trim();
         if (author) updated.author = author.slice(0, 160);
         else delete updated.author;
