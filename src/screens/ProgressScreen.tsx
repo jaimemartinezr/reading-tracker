@@ -306,18 +306,21 @@ export function ProgressScreen() {
                           const book = bookById.get(bookId);
                           if (!book) return null;
                           const range = readingRange(book);
-                          const pageReached = Math.min(
-                            bookPagesUpTo(data.entries, bookId, day.date),
-                            range.readingPages,
-                          );
+                          const cumulative = bookPagesUpTo(data.entries, bookId, day.date);
+                          const reachedInRange = Math.min(cumulative, range.readingPages);
                           const absolutePage =
-                            pageReached > 0 ? range.startPage + pageReached - 1 : 0;
+                            reachedInRange > 0 ? range.startPage + reachedInRange - 1 : 0;
+                          const accumulatedPercent =
+                            range.readingPages > 0
+                              ? Math.min(100, (cumulative / range.readingPages) * 100)
+                              : 0;
                           return (
                             <span className="chip" key={bookId}>
                               <span className="chip-dot" style={{ background: book.color }} />
                               {book.title} · {formatNumber(pages)} págs (
                               {formatPercent((pages / range.readingPages) * 100)}) · pág.{' '}
-                              {formatNumber(absolutePage)} de {formatNumber(range.endPage)}
+                              {formatNumber(absolutePage)} de {formatNumber(range.endPage)} ·{' '}
+                              {formatPercent(accumulatedPercent)} acumulado
                             </span>
                           );
                         })}

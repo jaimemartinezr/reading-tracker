@@ -56,6 +56,10 @@ export function PagesChart({ days, books, entries }: PagesChartProps) {
         selectedRange.endPage,
       )
     : 0;
+  const selectedAccumulatedPercent =
+    selectedRange && selectedRange.readingPages > 0
+      ? Math.min(100, (selectedCumulative / selectedRange.readingPages) * 100)
+      : 0;
 
   const toggle = (date: string, bookId: string) => {
     setSelected((previous) =>
@@ -161,7 +165,9 @@ export function PagesChart({ days, books, entries }: PagesChartProps) {
               {' · '}
               {formatNumber(selectedPages)} págs ({formatPercent(selectedBookPercent)}) · pág.{' '}
               {formatNumber(Math.max(0, selectedPageReached))} de{' '}
-              {formatNumber(selectedRange?.endPage ?? 0)} · {formatShortDate(selected.date)}
+              {formatNumber(selectedRange?.endPage ?? 0)} ·{' '}
+              {formatPercent(selectedAccumulatedPercent)} acumulado ·{' '}
+              {formatShortDate(selected.date)}
             </span>
             <button
               type="button"
