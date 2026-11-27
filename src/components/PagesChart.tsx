@@ -1,6 +1,7 @@
 import { useEffect, useMemo, useState } from 'react';
-import type { Book } from '../types';
+import type { Book, Entry } from '../types';
 import type { DayStat } from '../lib/stats';
+import { bookPagesUpTo, readingRange } from '../lib/stats';
 import { formatShortDate, formatWeekday } from '../lib/date';
 import { formatNumber, formatPercent } from '../lib/format';
 import { Icon } from './Icon';
@@ -8,6 +9,7 @@ import { Icon } from './Icon';
 interface PagesChartProps {
   days: DayStat[];
   books: Book[];
+  entries: Entry[];
 }
 
 interface Selection {
@@ -15,7 +17,7 @@ interface Selection {
   bookId: string;
 }
 
-export function PagesChart({ days, books }: PagesChartProps) {
+export function PagesChart({ days, books, entries }: PagesChartProps) {
   const [selected, setSelected] = useState<Selection | null>(null);
 
   const bookById = useMemo(() => new Map(books.map((book) => [book.id, book])), [books]);
@@ -41,8 +43,19 @@ export function PagesChart({ days, books }: PagesChartProps) {
   const selectedBook = selected ? (bookById.get(selected.bookId) ?? null) : null;
   const selectedPages =
     selectedDay && selected ? (selectedDay.perBook[selected.bookId] ?? 0) : 0;
-  const selectedPercent =
-    selectedDay && selectedDay.pages > 0 ? (selectedPages / selectedDay.pages) * 100 : 0;
+  const selectedRange = selectedBook ? readingRange(selectedBook) : null;
+  const selectedBookPercent =
+    selectedRange && selectedRange.readingPages > 0
+      ? (selectedPages / selectedRange.readingPages) * 100
+      : 0;
+  const selectedCumulative =
+    selected && selectedBook ? bookPagesUpTo(entries, selectedBook.id, selected.date) : 0;
+  const selectedPageReached = selectedRange
+    ? Math.min(
+        selectedRange.startPage + selectedCumulative - 1,
+        selectedRange.endPage,
+      )
+    : 0;
 
   const toggle = (date: string, bookId: string) => {
     setSelected((previous) =>
@@ -145,8 +158,10 @@ export function PagesChart({ days, books }: PagesChartProps) {
             <span className="chart-legend-dot" style={{ background: selectedBook.color }} />
             <strong>{selectedBook.title}</strong>
             <span>
-              {formatNumber(selectedPages)} págs · {formatPercent(selectedPercent)} del día ·{' '}
-              {formatShortDate(selected.date)}
+              {' · '}
+              {formatNumber(selectedPages)} págs ({formatPercent(selectedBookPercent)}) · pág.{' '}
+              {formatNumber(Math.max(0, selectedPageReached))} de{' '}
+              {formatNumber(selectedRange?.endPage ?? 0)} · {formatShortDate(selected.date)}
             </span>
             <button
               type="button"

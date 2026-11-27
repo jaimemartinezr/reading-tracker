@@ -234,7 +234,7 @@ export function ProgressScreen() {
               <span className="muted">{periodLabel}</span>
             </div>
             {totalPages > 0 ? (
-              <PagesChart days={days} books={books} />
+              <PagesChart days={days} books={books} entries={data.entries} />
             ) : (
               <p className="empty-line">No hay páginas registradas en este mes.</p>
             )}
