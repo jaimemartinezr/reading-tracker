@@ -317,8 +317,8 @@ export function ProgressScreen() {
                           return (
                             <span className="chip" key={bookId}>
                               <span className="chip-dot" style={{ background: book.color }} />
-                              {book.title} · +{formatNumber(pages)} pags (+
-                              {formatPercent((pages / range.readingPages) * 100)}) · pag{' '}
+                              {book.title} · +{formatNumber(pages)} págs (+
+                              {formatPercent((pages / range.readingPages) * 100)}) · pág{' '}
                               {formatNumber(absolutePage)} de {formatNumber(range.endPage)} (
                               {formatPercent(accumulatedPercent)})
                             </span>

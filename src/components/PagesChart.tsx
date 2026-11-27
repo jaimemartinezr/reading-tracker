@@ -165,7 +165,7 @@ export function PagesChart({ days, books, entries }: PagesChartProps) {
             <strong>{selectedBook.title}</strong>
             <span>
               {' · +'}
-              {formatNumber(selectedPages)} pags (+{formatPercent(selectedBookPercent)}) · pag{' '}
+              {formatNumber(selectedPages)} págs (+{formatPercent(selectedBookPercent)}) · pág{' '}
               {formatNumber(Math.max(0, selectedPageReached))} de{' '}
               {formatNumber(selectedRange?.endPage ?? 0)} (
               {formatPercent(selectedAccumulatedPercent)})
